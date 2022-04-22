@@ -1,37 +1,11 @@
-# import sqlalchemy as db
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from model import Price
-
+from datetime import datetime
+import time
+import json
 
 from sqlalchemy.engine.base import Engine, Connection
-
-#
-# Base = declarative_base()
-#
-#
-# class Price(Base):
-#     __tablename__ = 'prices'
-#
-#     name = Column(String)
-#     fullname = Column(String)
-#     nickname = Column(String)
-#     Id = Column('Id', Integer(), primary_key=True)
-#     name = Column('name', String(length=255), nullable=False)
-#     symbol = Column('symbol', String(length=255))
-#     slug = Column('slug', String(length=255))
-#     data_added = Column('data_added', String(length=255))
-#     max_supply = Column('max_supply', Float())
-#     circulating_supply = Column('circulating_supply', Float())
-#     total_supply = Column('total_supply', Float())
-#     last_updated = Column('last_updated', DateTime())
-#     price = Column('price', Float())
-#     percent_change_1h = Column('percent_change_1h', Float())
-#     percent_change_24h = Column('percent_change_24h', Float())
-#     percent_change_7d = Column('percent_change_7d', Float())
-#     percent_change_30d = Column('percent_change_30d', Float())
-#     percent_change_60d = Column('percent_change_60d', Float())
-#     percent_change_90d = Column('percent_change_90d', Float())
 
 
 def sqlalchemy_configuration() -> Engine:
@@ -45,21 +19,75 @@ def get_connection(engine: Engine) -> Connection:
     print(f"Connection establish")
     return conn
 
-# def insert_table(tablename: ):
-#     pass
-#     # Building the query
-#     ins = tablename
+
+def _prepare_several_insert(data_dump):
+    records = []
+    for i in range(len(data_dump)):
+        data = data_dump[i]
+        price = Price(id=data['id'],
+                      name=data['name'],
+                      symbol=data['symbol'],
+                      slug=data['slug'],
+                      cmc_rank=data['cmc_rank'],
+                      date_added=data['date_added'],
+                      max_supply=data['max_supply'],
+                      circulating_supply=data['circulating_supply'],
+                      total_supply=data['total_supply'],
+                      last_updated=data['last_updated'],
+                      price=data['quote']['USD']['price'],
+                      percent_change_1h=data['quote']['USD']['percent_change_1h'],
+                      percent_change_24h=data['quote']['USD']['percent_change_24h'],
+                      percent_change_7d=data['quote']['USD']['percent_change_7d'],
+                      percent_change_30d=data['quote']['USD']['percent_change_30d'],
+                      percent_change_60d=data['quote']['USD']['percent_change_60d'],
+                      percent_change_90d=data['quote']['USD']['percent_change_90d'])
+        records.append(price)
+    return records
 
 
-# Executing the Query
+def insert_all(connection, data_dump):
+    session = Session(bind=connection)
+    records_to_insert = _prepare_several_insert(data_dump)
+    session.add_all(records_to_insert)
+    session.commit()
+
+
+def insert_single(connection, data: dict):
+    session = Session(bind=connection)
+
+    price = Price(id=data['id'],
+                      name=data['name'],
+                      symbol=data['symbol'],
+                      slug=data['slug'],
+                      cmc_rank=data['cmc_rank'],
+                      date_added=data['date_added'],
+                      max_supply=data['max_supply'],
+                      circulating_supply=data['circulating_supply'],
+                      total_supply=data['total_supply'],
+                      last_updated=data['last_updated'],
+                      price=data['quote']['USD']['price'],
+                      percent_change_1h=data['quote']['USD']['percent_change_1h'],
+                      percent_change_24h=data['quote']['USD']['percent_change_24h'],
+                      percent_change_7d=data['quote']['USD']['percent_change_7d'],
+                      percent_change_30d=data['quote']['USD']['percent_change_30d'],
+                      percent_change_60d=data['quote']['USD']['percent_change_60d'],
+                      percent_change_90d=data['quote']['USD']['percent_change_90d'])
+    session.add(price)
+    session.commit()
+
 
 if __name__ == '__main__':
     engine = sqlalchemy_configuration()
     from model import init_price_table
     init_price_table(engine=engine)
-    conn = get_connection(engine)
 
-    session = Session(bind=engine)
-    record = Price(Id=1,name='name',symbol='symbole', slug='slug', data_added='2022-04-21', max_supply=1.0, circulating_supply=1.0, total_supply=1.0, last_updated='2022-04-21', price=1.0,percent_change_1h=1.0, percent_change_24h= 1.0,percent_change_7d= 1.0, percent_change_30d= 1.0, percent_change_60d= 1.0, percent_change_90d=1.0)
-    session.add(record)
-    session.commit()
+    conn = get_connection(engine)
+    t = str(datetime.utcfromtimestamp(time.time()))
+    timestamp = t[0: 10].replace("-", "_")
+
+    with open(f'price-{timestamp}.json') as file:
+        read_data = json.load(file)
+    # print(read_data['data'][0]['id'])
+    print(read_data['data'])
+
+    insert_all(connection=engine, data_dump=read_data['data'])

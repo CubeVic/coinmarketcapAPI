@@ -54,9 +54,10 @@ def get_updated_prices(session: Session):
 
         timestamp = data['status']['timestamp'].replace("-", "_").replace(":", "_")
         timestamp = timestamp[0:10]
-
+        result = {'timestamp': data['status']['timestamp'],
+                'data': data['data'] }
         with open(f'price-{timestamp}.json', 'w') as file:
-            json.dump(data['data'], file, indent=6)
+            json.dump(result, file, indent=6)
             print(f'File created price-{timestamp}.json')
         return {'timestamp': data['status']['timestamp'],
                 'data': data['data'] }

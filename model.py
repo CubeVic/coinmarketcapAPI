@@ -8,11 +8,12 @@ Base = declarative_base()
 class Price(Base):
     __tablename__ = 'prices'
 
-    Id = Column('Id', Integer(), primary_key=True)
+    id = Column('id', Integer(), primary_key=True)
     name = Column('name', String(length=255), nullable=False)
     symbol = Column('symbol', String(length=255))
     slug = Column('slug', String(length=255))
-    data_added = Column('data_added', String(length=255))
+    cmc_rank = Column('cmc_rank', Integer())
+    date_added = Column('data_added', String(length=255))
     max_supply = Column('max_supply', Float())
     circulating_supply = Column('circulating_supply', Float())
     total_supply = Column('total_supply', Float())
@@ -28,4 +29,10 @@ class Price(Base):
 
 def init_price_table(engine: Engine):
     #TODO: verify if the table exist and create one if it doesnt.
-    Base.metadata.create_all(engine)
+    print(engine.has_table(table_name='prices'))
+    if engine.has_table(table_name='prices'):
+        # drop the table if exist
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+    else:
+        Base.metadata.create_all(engine)
