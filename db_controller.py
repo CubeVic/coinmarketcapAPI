@@ -20,7 +20,7 @@ def get_connection(engine: Engine) -> Connection:
     return conn
 
 
-def _prepare_several_insert(data_dump):
+def _prepare_several_insert(data_dump) -> list:
     records = []
     for i in range(len(data_dump)):
         data = data_dump[i]
@@ -50,6 +50,7 @@ def insert_all(connection, data_dump):
     records_to_insert = _prepare_several_insert(data_dump)
     session.add_all(records_to_insert)
     session.commit()
+    print('')
 
 
 def insert_single(connection, data: dict):
@@ -87,6 +88,6 @@ if __name__ == '__main__':
 
     with open(f'price-{timestamp}.json') as file:
         read_data = json.load(file)
-    print(read_data['data'])
+    # print(read_data['data'])
 
     insert_all(connection=engine, data_dump=read_data['data'])
