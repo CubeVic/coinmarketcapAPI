@@ -87,7 +87,6 @@ if __name__ == '__main__':
 
     with open(f'price-{timestamp}.json') as file:
         read_data = json.load(file)
-    # print(read_data['data'][0]['id'])
     print(read_data['data'])
 
     insert_all(connection=engine, data_dump=read_data['data'])
