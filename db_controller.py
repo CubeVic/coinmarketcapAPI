@@ -1,15 +1,20 @@
+import os.path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from model import Price
+from model import Price, init_price_table
 from datetime import datetime
 import time
 import json
+
 
 from sqlalchemy.engine.base import Engine, Connection
 
 
 def sqlalchemy_configuration() -> Engine:
     engine = create_engine('sqlite:///prices.sqlite')
+    if os.path.exists('prices.sqlite'):
+        init_price_table(engine=engine)
     return engine
 
 
@@ -52,6 +57,12 @@ def insert_all(connection, data_dump):
     session.commit()
     print('')
 
+# def update_table(connection,data_dump):
+#     # t = str(datetime.utcfromtimestamp(time.time()))
+#     # timestamp = t[0: 10].replace("-", "_")
+#     # if os.path.exists(f'price-{timestamp}.json'):
+#     session = Session(bind=connection)
+#     print(session.
 
 def insert_single(connection, data: dict):
     session = Session(bind=connection)
@@ -79,15 +90,12 @@ def insert_single(connection, data: dict):
 
 if __name__ == '__main__':
     engine = sqlalchemy_configuration()
-    from model import init_price_table
-    init_price_table(engine=engine)
-
     conn = get_connection(engine)
     t = str(datetime.utcfromtimestamp(time.time()))
     timestamp = t[0: 10].replace("-", "_")
 
     with open(f'price-{timestamp}.json') as file:
         read_data = json.load(file)
-    # print(read_data['data'])
 
-    insert_all(connection=engine, data_dump=read_data['data'])
+    # insert_all(connection=engine, data_dump=read_data['data'])
+    update_table(connection=conn, data_dump=read_data['data'])

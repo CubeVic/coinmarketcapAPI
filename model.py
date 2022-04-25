@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import declarative_base
 
-from sqlalchemy.engine.base import Engine, Connection
+
+from sqlalchemy.engine.base import Engine
 Base = declarative_base()
 
 

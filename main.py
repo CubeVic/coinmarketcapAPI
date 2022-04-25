@@ -47,8 +47,8 @@ def get_updated_prices(session: Session):
             'convert': 'USD',
         }
         endpoint = '/v1/cryptocurrency/listings/latest'
-        # url = BASE_URL + endpoint
-        url = SANDBOX_URL + endpoint
+        url = BASE_URL + endpoint
+        # url = SANDBOX_URL + endpoint
         response = session.get(url, params=params)
         data = json.loads(response.text)
 
@@ -83,7 +83,7 @@ def get_map(session: Session):
 def get_price_from_db(timestamp: datetime) -> dict:
     data = []
     with open(f'price-{timestamp}.json', 'r') as file:
-        data = json.loads(file.read())
+      data = json.loads(file.read())
     return data
 
 
