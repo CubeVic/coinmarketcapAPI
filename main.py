@@ -120,3 +120,5 @@ if __name__ == '__main__':
     cnc_configuration()
     session = prepare_session(headers=HEADERS)
     print(get_updated_prices(session=session))
+    import database
+    database.update_records_from_json_file()
