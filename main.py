@@ -54,6 +54,7 @@ def get_updated_prices(session: Session):
   :param session:
   :return: json
   """
+    global response
     time = str(get_time())[0:10].replace("-", "_")
     if os.path.exists(f"price-{time}.json"):
         logger.info(f'JSON File already exist: price-{time}.json')
@@ -70,21 +71,22 @@ def get_updated_prices(session: Session):
             response = session.get(url, params=params)
         except (ConnectionError, Timeout, TooManyRedirects) as e:
             print(e)
+        else:
+            data = json.loads(response.text)
 
-        data = json.loads(response.text)
-        logger.info((data['status'],data['status']['timestamp']))
-        timestamp = data['status']['timestamp'].replace("-", "_").replace(":", "_")
-        timestamp = timestamp[0:10]
-        result = {
+            logger.info((data['status'],data['status']['timestamp']))
+            timestamp = data['status']['timestamp'].replace("-", "_").replace(":", "_")
+            timestamp = timestamp[0:10]
+            result = {
                     'timestamp': data['status']['timestamp'],
                     'data': data['data']
                 }
 
-        with open(f'price-{timestamp}.json', 'w') as file:
-            json.dump(result, file, indent=6)
-            logger.info(f'File created: price-{time}.json')
+            with open(f'price-{timestamp}.json', 'w') as file:
+                json.dump(result, file, indent=6)
+                logger.info(f'File created: price-{time}.json')
 
-        return {
+            return {
                 'timestamp': data['status']['timestamp'],
                 'data': data['data']
                 }
