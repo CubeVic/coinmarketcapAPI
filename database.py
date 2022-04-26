@@ -27,7 +27,8 @@ CREATE_TABLE = """CREATE TABLE IF NOT EXISTS prices(
                     percent_change_60d real,
                     percent_change_90d real)"""
 
-IS_TABLE = """SELECT name FROM sqlite_master WHERE type='table' AND name=prices"""
+IS_TABLE = """SELECT name FROM sqlite_master 
+                WHERE type='table' AND name=prices"""
 IS_TABLE_EMPTY = """SELECT EXISTS (SELECT 1 FROM prices)"""
 
 INSERT_MANY = """INSERT INTO prices
@@ -39,9 +40,7 @@ UPDATEMANY = """UPDATE prices
                     SET cmc_rank=?,max_supply=?,circulating_supply=?,total_supply=?,last_updated=?,
                         price=?, percent_change_1h=?,percent_change_24h=?,percent_change_7d=?,percent_change_30d=?,
                         percent_change_60d=?,percent_change_90d=? 
-                    WHERE id=?
-            """
-
+                    WHERE id=?"""
 
 def sqlconfigure():
     global logger
@@ -61,16 +60,13 @@ def sqlconfigure():
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
 
-    # logger.info("Checking if database exist")
-    # logger.info("Database exist")
     conn = sqlite3.connect("cryptodatabase.db")
     cur = conn.cursor()
     cur.execute(CREATE_TABLE)
     return conn, cur
 
 
-
-def insert_all(data_dump):
+def insert_all(conn, cur, data_dump):
     records = []
     for i in range(len(data_dump)):
         data = data_dump[i]
@@ -81,7 +77,9 @@ def insert_all(data_dump):
                 data['quote']['USD']['percent_change_60d'],data['quote']['USD']['percent_change_90d'])
         records.append(r)
     cur.executemany(INSERT_MANY, records)
-    logger.info("Adding values to the database")
+    logger.info("values added to the database")
+    conn.commit()
+    conn.close()
 
 
 # Update records
@@ -95,14 +93,14 @@ def update_records(conn, cur, data_dump):
 
         # Check if the table is empty
         if not cur.execute(IS_TABLE_EMPTY).fetchone()[0]:
-            insert_all(data_dump=data_dump)
+            insert_all(conn=conn, cur=cur, data_dump=data_dump)
         else:
 
             last_updated_from_db = cur.execute(SELECT_LAST_UPDATED).fetchone()[0]
 
             last_updated_from_file = data_dump[0]['last_updated']
             if last_updated_from_db != last_updated_from_file:
-                print('updating')
+                logger.info('updating')
                 for i in range(len(data_dump)):
                     data = data_dump[i]
                     r = (data['cmc_rank'],data['max_supply'],data['circulating_supply'],data['total_supply'],data['last_updated'],
@@ -113,20 +111,23 @@ def update_records(conn, cur, data_dump):
                 cur.executemany(UPDATEMANY, records)
             else:
                 logger.info('database no need update')
-    conn.commit()
-    conn.close()
+            conn.commit()
+            conn.close()
 
 
+def read_from_json_file():
+    t = str(datetime.utcfromtimestamp(time.time()))
+    timestamp = t[0: 10].replace("-", "_")
+
+    with open(f'price-{timestamp}.json') as file:
+        read_data = json.load(file)
+    return read_data['data']
 
 ############################################
 conn, cur = sqlconfigure()
 
-t = str(datetime.utcfromtimestamp(time.time()))
-timestamp = t[0: 10].replace("-", "_")
 
-with open(f'price-{timestamp}.json') as file:
-      read_data = json.load(file)
-#
-# insert_all(read_data['data'])
+data_dump = read_from_json_file()
+# insert_all(data_dump)
 
-update_records(conn=conn, cur=cur, data_dump=read_data['data'])
+update_records(conn=conn, cur=cur, data_dump=data_dump)

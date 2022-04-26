@@ -64,8 +64,8 @@ def get_updated_prices(session: Session):
             'convert': 'USD',
         }
         endpoint = '/v1/cryptocurrency/listings/latest'
-        # url = BASE_URL + endpoint
-        url = SANDBOX_URL + endpoint
+        url = BASE_URL + endpoint
+        # url = SANDBOX_URL + endpoint
         try:
             response = session.get(url, params=params)
         except (ConnectionError, Timeout, TooManyRedirects) as e:
