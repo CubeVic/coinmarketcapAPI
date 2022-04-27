@@ -5,7 +5,8 @@ import json
 import time
 import logging
 import os
-from sql_expression import CREATE_TABLE, IS_TABLE_EXIST, IS_TABLE_EMPTY, INSERT_MANY, SELECT_LAST_UPDATED, UPDATE_MANY
+from sql_expression import (CREATE_TABLE, IS_TABLE_EXIST, IS_TABLE_EMPTY, INSERT_MANY, SELECT_LAST_UPDATED, UPDATE_MANY,
+                            SELECT_ALL)
 
 
 def _configure_logger():
@@ -15,9 +16,9 @@ def _configure_logger():
 		log the information to the console.
 	:return: None
 	"""
-	global logger
-	logger = logging.getLogger(__name__)
-	logger.setLevel(logging.DEBUG)
+	global sql_logger
+	sql_logger = logging.getLogger(__name__)
+	sql_logger.setLevel(logging.DEBUG)
 
 	file_formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt="%d-%b-%y %H:%M:%S")
 	stream_formatter = logging.Formatter('%(levelname)s - function: %(funcName)s - %(message)s')
@@ -28,8 +29,8 @@ def _configure_logger():
 	stream_handler = logging.StreamHandler()
 	stream_handler.setFormatter(stream_formatter)
 
-	logger.addHandler(file_handler)
-	logger.addHandler(stream_handler)
+	sql_logger.addHandler(file_handler)
+	sql_logger.addHandler(stream_handler)
 
 
 def sql_configure() -> (Connection, Cursor):
@@ -41,9 +42,12 @@ def sql_configure() -> (Connection, Cursor):
 	:return: connector, cursor
 	"""
 	_configure_logger()
+
 	connection = sqlite3.connect("cryptodatabase.db")
+
 	cursor = connection.cursor()
 	cursor.execute(CREATE_TABLE)
+
 	return connection, cursor
 
 
@@ -56,6 +60,7 @@ def insert_all(connection: Connection, cursor: Cursor, data_dump: dict):
 	:return: None
 	"""
 	records = []
+
 	for i in range(len(data_dump)):
 		data = data_dump[i]
 		r = (data['id'], data['name'], data['symbol'], data['slug'], data['cmc_rank'], data['date_added'],
@@ -65,13 +70,14 @@ def insert_all(connection: Connection, cursor: Cursor, data_dump: dict):
 			 data['quote']['USD']['percent_change_7d'], data['quote']['USD']['percent_change_30d'],
 			 data['quote']['USD']['percent_change_60d'], data['quote']['USD']['percent_change_90d'])
 		records.append(r)
+
 	try:
 		cursor.executemany(INSERT_MANY, records)
 	except sqlite3.OperationalError as e:
-		logger.exception(f"table doesn't exist.\nOriginal Traceback\n{e}")
+		sql_logger.exception(f"table doesn't exist.\nOriginal Traceback\n{e}")
 	else:
 		connection.commit()
-		logger.info("values added to the database")
+		sql_logger.info("values added to the database")
 	finally:
 		connection.close()
 
@@ -93,37 +99,37 @@ def update_records(connection: Connection, cursor: Cursor, data_dump: dict):
 	records = []
 
 	if os.path.exists(f"price-{timestamp}.json"):
-		logger.info(f'File price-{timestamp}.json exist')
+		sql_logger.info(f'File price-{timestamp}.json exist')
 
 		try:
 			last_updated_from_db = cursor.execute(SELECT_LAST_UPDATED).fetchone()[0]
 		except TypeError as e:
-			logger.exception(f"table in the database is empty.\n\tHere original Traceback\n\t{e}")
-			logger.info('Executing function insert_all to populate database')
+			sql_logger.exception(f"table in the database is empty.\n\tHere original Traceback\n\t{e}")
+			sql_logger.info('Executing function insert_all to populate database')
 			insert_all(connection=connection, cursor=cursor, data_dump=data_dump)
 		else:
 			last_updated_from_file = data_dump[0]['last_updated']
 			if last_updated_from_db != last_updated_from_file:
-				logger.info('updating')
+				sql_logger.info('updating')
 				for i in range(len(data_dump)):
 					data = data_dump[i]
 					r = (data['cmc_rank'], data['max_supply'], data['circulating_supply'], data['total_supply'],
 						 data['last_updated'],
 						 data['quote']['USD']['price'],
-						 data['quote']['USD']['percent_change_1h'],data['quote']['USD']['percent_change_24h'],
+						 data['quote']['USD']['percent_change_1h'], data['quote']['USD']['percent_change_24h'],
 						 data['quote']['USD']['percent_change_7d'], data['quote']['USD']['percent_change_30d'],
 						 data['quote']['USD']['percent_change_60d'], data['quote']['USD']['percent_change_90d'],
 						 data['id'])
 					records.append(r)
 					cursor.executemany(UPDATE_MANY, records)
 				else:
-					logger.info('database no need update')
+					sql_logger.info('database no need update')
 			connection.commit()
 		finally:
 			connection.close()
 
 
-def read_from_json_file() -> dict:
+def _read_from_json_file() -> dict:
 	"""Read the data from the json file.
 
 	Description:
@@ -136,6 +142,7 @@ def read_from_json_file() -> dict:
 
 	with open(f'price-{timestamp}.json') as file:
 		read_data = json.load(file)
+
 	return read_data['data']
 
 
@@ -146,19 +153,33 @@ def _get_todays_timestamp() -> str:
 	"""
 	t = str(datetime.utcfromtimestamp(time.time()))
 	timestamp = t[0: 10].replace("-", "_")
+
 	return timestamp
 
 
-def update_records_from_json_file():
+def _update_records_from_json_file():
 	try:
-		data_dump = read_from_json_file()
-	except Exception as e:
-		logging.exception(f"Error getting data from json file")
+		data_dump = _read_from_json_file()
+	except FileNotFoundError as e:
+		logging.error(f" json file doesn't exist\n{e}\n")
 
+	conn, cur = sql_configure()
 	try:
-		conn, cur = sql_configure()
-	except Exception as e:
-		logging.error(f"====Error====\n{e}")
-	else:
 		update_records(connection=conn, cursor=cur, data_dump=data_dump)
+	except UnboundLocalError as e:
+		logging.error(f"\n====Error====\n There is no data\n{e}")
 
+
+def get_all_records():
+	conn, cur = sql_configure()
+
+	try:
+		records = cur.execute(SELECT_ALL).fetchall()
+	except Exception as e:
+		sql_logger.error(f"something went wrong\n{e}")
+	else:
+		# join both results and collumns and deliver a json
+		print([description[0] for description in cur.description])
+		print(records)
+	finally:
+		conn.close()

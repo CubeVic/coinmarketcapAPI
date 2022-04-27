@@ -40,3 +40,5 @@ UPDATE_MANY = """UPDATE prices SET
 					percent_change_60d=?,
 					percent_change_90d=? 
 						WHERE id=?"""
+
+SELECT_ALL = """ SELECT * FROM prices """
