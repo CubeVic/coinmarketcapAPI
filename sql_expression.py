@@ -1,5 +1,22 @@
+COLUMNS = ["id",
+           "name",
+           "symbol",
+           "slug",
+           "cmc_rank",
+           "date_added",
+           "max_supply",
+           "circulating_supply",
+           "total_supply",
+           "last_updated",
+           "price",
+           "percent_change_1h",
+           "percent_change_24h",
+           "percent_change_7d",
+           "percent_change_30d",
+           "percent_change_60d",
+           "percent_change_90d"]
 CREATE_TABLE = """CREATE TABLE IF NOT EXISTS prices(
-                    id integer,
+                    id integer PRIMARY KEY,
                     name text,
                     symbol text,
                     slug text,
@@ -21,7 +38,7 @@ IS_TABLE_EXIST = """SELECT name FROM sqlite_master
                 WHERE type='table' AND name=prices"""
 IS_TABLE_EMPTY = """SELECT EXISTS (SELECT 1 FROM prices)"""
 
-INSERT_MANY = """INSERT INTO prices
+INSERT_MANY = """INSERT OR IGNORE INTO prices
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
 
 SELECT_LAST_UPDATED = """SELECT last_updated from prices"""
@@ -42,3 +59,5 @@ UPDATE_MANY = """UPDATE prices SET
 						WHERE id=?"""
 
 SELECT_ALL = """ SELECT * FROM prices """
+
+DROP_TABLE= """ DROP TABLE prices"""

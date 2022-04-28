@@ -1,8 +1,8 @@
 import cmc_api
-import database
+from models import Prices
 
 if __name__ == '__main__':
+	db = Prices()
 	cmc_api.cnc_configuration()
-	database.sql_configure()
-	database.get_all_records()
-
+	data = cmc_api.get_updated_prices_from_cmc()
+	# print(db.read_all())

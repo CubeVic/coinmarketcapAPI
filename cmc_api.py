@@ -5,7 +5,6 @@ import json
 import time
 from datetime import datetime
 import logging
-import database
 
 
 def _configure_cmc_logger():
@@ -85,7 +84,9 @@ def get_updated_prices_from_cmc() -> dict:
 			cmc_logger.error(f"error with the connection to CMC API\n{e}")
 		else:
 			data = json.loads(response.text)
-			cmc_logger.info((data['status'], data['status']['timestamp']))
+			cmc_logger.info(f'Error Message: {data["status"]["error_message"]}, '
+			                f'Error code: {data["status"]["error_code"]},'
+			                f'status: {data["status"]["timestamp"]}')
 
 			timestamp = data['status']['timestamp'].replace("-", "_").replace(":", "_")
 			timestamp = timestamp[0:10]
@@ -123,15 +124,7 @@ def get_map():
 
 
 def get_price_from_json_file(timestamp: str) -> dict:
-
 	with open(f'price-{timestamp}.json', 'r') as file:
 		payload = json.loads(file.read())
 	return payload
 
-
-if __name__ == '__main__':
-	cnc_configuration()
-	session = prepare_session()
-	updated_prices = get_updated_prices_from_cmc()
-	get_map()
-	database._update_records_from_json_file()
