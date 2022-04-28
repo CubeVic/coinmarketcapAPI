@@ -6,7 +6,6 @@ import time
 from datetime import datetime
 import logging
 
-
 def _configure_cmc_logger():
 	global cmc_logger
 	cmc_logger = logging.getLogger(__name__)
@@ -23,6 +22,13 @@ def _configure_cmc_logger():
 
 	cmc_logger.addHandler(file_handler)
 	cmc_logger.addHandler(stream_handler)
+
+
+
+class CmcApi(CMC_API):
+
+	def __init__(self):
+		_configure_cmc_logger()
 
 
 def cnc_configuration():
