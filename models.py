@@ -109,5 +109,8 @@ class Prices:
 
 	def select_last_updated(self) -> str:
 		self.cur.execute(SELECT_LAST_UPDATED)
-		row = self.cur.fetchone()[0]
+		try:
+			row = self.cur.fetchone()[0]
+		except Exception as e:
+			sql_logger.error(f'something when wrong, maybe the database is empty\n{e}')
 		return row
