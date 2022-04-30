@@ -10,3 +10,5 @@ if __name__ == '__main__':
 	cmc.get_map()
 
 	print(db.select_last_updated())
+	ids = db.select_all_ids()
+	print(cmc.get_info(id=ids))
