@@ -185,7 +185,7 @@ if os.path.exists(f'json_files/price-{timestamp}.json'):
 	price_data_payload = _read_price_info_from_json_file()
 else:
 	init_logger.debug('Calling CMC API to get prices')
-	price_data_payload = cmc.get_updated_prices_from_cmc()
+	price_data_payload = cmc.get_updated_prices()
 
 ids = [str(data['id'])for data in price_data_payload['data']]
 cmc_ids = ",".join(ids)
@@ -197,7 +197,7 @@ if os.path.exists('json_files/info.json'):
 else:
 	init_logger.debug('Calling CMC API to get info')
 	# first get the ids
-	info_data_payload = cmc.get_info(id=cmc_ids)
+	info_data_payload = cmc.get_info(tokens_coins_ids=cmc_ids)
 
 # populate database
 insert_all_prices(db_table_prices=db_prices, price_data=price_data_payload['data'])

@@ -10,147 +10,155 @@ import enum
 import urllib.parse
 
 
+def configure_logger():
+    cmc_logger = logging.getLogger(__name__)
+    cmc_logger.setLevel(logging.DEBUG)
+
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
+    )
+    stream_formatter = logging.Formatter(
+        "%(levelname)s - function: %(funcName)s - %(message)s"
+    )
+
+    file_handler = logging.FileHandler("logs/cmc_api.log")
+    file_handler.setFormatter(file_formatter)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(stream_formatter)
+
+    cmc_logger.addHandler(file_handler)
+    cmc_logger.addHandler(stream_handler)
+    return cmc_logger
+
+
 class Cryptocurrency(enum.Enum):
-	cmc_id_map = '/v1/cryptocurrency/map'
-	latest_list_price = '/v1/cryptocurrency/listings/latest'
-	info = '/v2/cryptocurrency/info'
+    cmc_id_map = "/v1/cryptocurrency/map"
+    latest_list_price = "/v1/cryptocurrency/listings/latest"
+    info = "/v2/cryptocurrency/info"
 
 
 class CmcApi:
-	BASE_URL = 'https://pro-api.coinmarketcap.com'
-	SANDBOX_URL = 'https://sandbox-api.coinmarketcap.com'
+    BASE_URL = "https://pro-api.coinmarketcap.com"
+    SANDBOX_URL = "https://sandbox-api.coinmarketcap.com"
 
-	timestamp = str(datetime.utcfromtimestamp(time.time()))[0:10].replace("-", "_")
+    timestamp = str(datetime.utcfromtimestamp(time.time()))[0:10].replace("-", "_")
+    cmc_logger = configure_logger()
 
-	cmc_logger = logging.getLogger(__name__)
-	cmc_logger.setLevel(logging.DEBUG)
+    def __init__(self, cmc_api, is_sandbox_url):
+        self.cmc_logger.info(f"Starting CMC")
+        self.HEADERS = {
+            "Accepts": "application/json",
+            "X-CMC_PRO_API_KEY": cmc_api,
+        }
+        self.is_sandbox_url = is_sandbox_url
+        self.uri = ""
+        self.request_session = Session()
+        self.request_session.headers.update(self.HEADERS)
 
-	file_formatter = logging.Formatter('%(asctime)s - %(message)s', datefmt="%d-%b-%y %H:%M:%S")
-	stream_formatter = logging.Formatter('%(levelname)s - function: %(funcName)s - %(message)s')
+    @property
+    def is_sandbox_url(self):
+        return self.uri
 
-	file_handler = logging.FileHandler('logs/cmc_api.log')
-	file_handler.setFormatter(file_formatter)
+    @is_sandbox_url.setter
+    def is_sandbox_url(self, is_sandbox_url):
+        """Sets the domain for the end point as sandbox if the option is true"""
+        if is_sandbox_url:
+            self.cmc_logger.info(f"Setting the Sandbox URL {self.SANDBOX_URL}")
+            self.uri = self.SANDBOX_URL
+        else:
+            self.cmc_logger.info(f"Setting the URL {self.BASE_URL}")
+            self.uri = self.BASE_URL
 
-	stream_handler = logging.StreamHandler()
-	stream_handler.setFormatter(stream_formatter)
+    @staticmethod
+    def _get_from_json_file(name: str, timestamp: str) -> any:
+        if os.path.exists(f"json_files/{name}-{timestamp}.json"):
+            with open(f"{name}-{timestamp}.json", "r") as file:
+                payload = json.loads(file.read())
+                return {"timestamp": payload["timestamp"], "data": payload["data"]}
+        return False
 
-	cmc_logger.addHandler(file_handler)
-	cmc_logger.addHandler(stream_handler)
+    @staticmethod
+    def _write_to_json_file(name: str, timestamp: str, payload: any):
+        """Write payload in a json file"""
+        with open(f"json_files/{name}-{timestamp}.json", "w") as file:
+            json.dump(payload, file, indent=6)
+            print(f"File created: {name}-{timestamp}.json")
 
-	def __init__(self, cmc_api, is_sandbox_url):
-		self.cmc_logger.info(f'Starting CMC')
-		self.HEADERS = {
-			'Accepts': 'application/json',
-			'X-CMC_PRO_API_KEY': cmc_api,
-		}
-		self.is_sandbox_url = is_sandbox_url
-		self.uri = ""
-		self.request_session = Session()
-		self.request_session.headers.update(self.HEADERS)
+    def get_map(self, sort: str = "cmc_rank"):
 
-	@property
-	def is_sandbox_url(self):
-		return self.uri
+        endpoint = Cryptocurrency.cmc_id_map.value
+        url = self.BASE_URL + endpoint
+        params = {
+            "sort": sort,
+        }
+        map_resp = self.request_session.get(url=url, params=params)
+        results = json.loads(map_resp.text)
 
-	@is_sandbox_url.setter
-	def is_sandbox_url(self, is_sandbox_url):
-		if is_sandbox_url:
-			self.cmc_logger.info(f'Setting the Sandbox URL {self.SANDBOX_URL}')
-			self.uri = self.SANDBOX_URL
-		else:
-			self.cmc_logger.info(f'Setting the URL {self.BASE_URL}')
-			self.uri = self.BASE_URL
+        self._write_to_json_file(name="cmc_map", timestamp=self.timestamp, payload=results)
+        return results
 
-	@staticmethod
-	def _get_price_from_json_file(timestamp: str) -> dict:
-		with open(f'price-{timestamp}.json', 'r') as file:
-			payload = json.loads(file.read())
-		return payload
+    def get_updated_prices(
+        self, start: str = "1", limit: str = "1000", convert: str = "USD"
+    ) -> dict:
+        """Query the APi for the latest prices, it consumes credits.
 
-	def get_map(self, sort: str = 'cmc_rank'):
+        :param: request_session
+        :return: json
+        """
+        params = {
+            "start": start,
+            "limit": limit,
+            "convert": convert,
+        }
+        endpoint = Cryptocurrency.latest_list_price.value
+        url = (self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint)
 
-		if os.path.exists(f"map.json"):
-			self.cmc_logger.info('File map already exist')
-		else:
-			# endpoint = '/v1/cryptocurrency/map'
-			endpoint = Cryptocurrency.cmc_id_map.value
-			url = self.BASE_URL + endpoint
-			params = {
-				'sort': sort,
-			}
-			map_resp = self.request_session.get(url=url, params=params)
-			cmc_map = json.loads(map_resp.text)
-			with open('map.json', 'w') as file:
-				json.dump(cmc_map['data'], file, indent=6)
-				self.cmc_logger.info(f'creating map.json file')
+        try:
+            response = self.request_session.get(url, params=params)
+        except (ConnectionError, Timeout, TooManyRedirects) as e:
+            self.cmc_logger.error(f"error with the connection to CMC API\n{e}")
+        else:
+            data = json.loads(response.text)
+            self.cmc_logger.debug(
+                f'There is an Error{data["status"]["error_message"]} {data["status"]["error_code"]}'
+            )
 
-	def get_updated_prices_from_cmc(self, start: str = '1', limit: str = '1000', convert: str = 'USD') -> dict:
-		""" Query the APi for the latest prices, it consumes credits.
+            results = {
+                "timestamp": data["status"]["timestamp"],
+                "data": data["data"],
+            }
 
-		:param: request_session
-		:return: json
-		"""
+            self._write_to_json_file(name="prices",timestamp=self.timestamp,payload=results)
 
-		if os.path.exists(f"price-{self.timestamp}.json"):
-			self.cmc_logger.info(f'JSON File already exist: price-{self.timestamp}.json')
-			data = self._get_price_from_json_file(self.timestamp)
-			self.cmc_logger.debug(f"Date obtained from Json file")
-			return {
-				'timestamp': data['timestamp'],
-				'data': data['data']
-			}
-		else:
-			params = {
-				'start': start,
-				'limit': limit,
-				'convert': convert,
-			}
-			# endpoint = '/v1/cryptocurrency/listings/latest'
-			endpoint = Cryptocurrency.latest_list_price.value
-			url = self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint
-			try:
-				response = self.request_session.get(url, params=params)
-			except (ConnectionError, Timeout, TooManyRedirects) as e:
-				self.cmc_logger.error(f"error with the connection to CMC API\n{e}")
-			else:
-				data = json.loads(response.text)
-				self.cmc_logger.debug(f'There is an Error{data["status"]["error_message"]} {data["status"]["error_code"]}')
+            return results
 
-				timestamp = data['status']['timestamp'].replace("-", "_").replace(":", "_")
-				timestamp = timestamp[0:10]
+    def get_info(
+        self,
+        tokens_coins_ids: str = "1",
+        info_aux: str = "urls,logo,description,platform,date_added,notice,status",
+    ):
+        #make sure i'm no passing a coma at the end of the ID string
+        if "," in tokens_coins_ids[-1]:
+            tokens_coins_ids = tokens_coins_ids[:-1]
 
-				result = {
-					'timestamp': data['status']['timestamp'],
-					'data': data['data']
-				}
+        params = {
+            "id": tokens_coins_ids,
+            "aux": info_aux,
+        }
+        endpoint = Cryptocurrency.info.value
+        url = (self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint)
 
-				with open(f'json_files/price-{timestamp}.json', 'w') as file:
-					json.dump(result, file, indent=6)
-					self.cmc_logger.info(f'File created: price-{timestamp}.json')
+        # adding params as string query
+        sq = urllib.parse.urlencode(params, safe=",")
+        response = self.request_session.get(url=url, params=sq)
+        data = json.loads(response.text)
+        self.cmc_logger.debug(f"response: {response.status_code} and answer \n{response.text}")
+        results = {
+            "timestamp": data["status"]["timestamp"],
+            "data": data["data"]
+        }
 
-				return result
+        self._write_to_json_file(name="info", timestamp=self.timestamp, payload=results)
 
-	def get_info(self, id: str= '1', info_aux: str = 'urls,logo,description,tags,platform,date_added,notice,status' ):
-
-		if os.path.exists(f'json_files/info.json'):
-			self.cmc_logger.info('File info already exist')
-		else:
-			params = {'id': id,
-					'aux': info_aux,
-					}
-			endpoint = Cryptocurrency.info.value
-			url = self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint
-			# adding params as string query
-			sq = urllib.parse.urlencode(params, safe=",")
-			response = self.request_session.get(url=url, params=sq)
-			data = json.loads(response.text)
-			results = {
-				'timestamp': data['status']['timestamp'],
-				'data': data['data']
-			}
-
-			with open(f'json_files/info.json', 'w') as file:
-				json.dump(results, file, indent=6)
-				self.cmc_logger.info(f'File created: info.json')
-
-			return results
+        return results
