@@ -14,6 +14,7 @@ class Cryptocurrency(enum.Enum):
 	cmc_id_map = '/v1/cryptocurrency/map'
 	latest_list_price = '/v1/cryptocurrency/listings/latest'
 	info = '/v2/cryptocurrency/info'
+	quote_latest= '/v2/cryptocurrency/quotes/latest'
 
 
 class CmcApi:
@@ -63,8 +64,15 @@ class CmcApi:
 
 	@staticmethod
 	def _get_price_from_json_file(timestamp: str) -> dict:
-		with open(f'price-{timestamp}.json', 'r') as file:
+		with open(f'json_files/price-{timestamp}.json', 'r') as file:
 			payload = json.loads(file.read())
+		return payload
+
+	@staticmethod
+	def _get_info_from_json_file() -> dict:
+		with open(f'json_files/info.json', 'r') as file:
+			payload = file.read()
+		print(f"payload ..... {payload}")
 		return payload
 
 	def get_map(self, sort: str = 'cmc_rank'):
@@ -91,10 +99,11 @@ class CmcApi:
 		:return: json
 		"""
 
-		if os.path.exists(f"price-{self.timestamp}.json"):
-			self.cmc_logger.info(f'JSON File already exist: price-{self.timestamp}.json')
+		if os.path.exists(f"json_files/price-{self.timestamp}.json"):
+			self.cmc_logger.debug(f'JSON File already exist: price-{self.timestamp}.json')
 			data = self._get_price_from_json_file(self.timestamp)
 			self.cmc_logger.debug(f"Date obtained from Json file")
+
 			return {
 				'timestamp': data['timestamp'],
 				'data': data['data']
@@ -105,7 +114,7 @@ class CmcApi:
 				'limit': limit,
 				'convert': convert,
 			}
-			# endpoint = '/v1/cryptocurrency/listings/latest'
+
 			endpoint = Cryptocurrency.latest_list_price.value
 			url = self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint
 			try:
@@ -131,26 +140,39 @@ class CmcApi:
 				return result
 
 	def get_info(self, id: str= '1', info_aux: str = 'urls,logo,description,tags,platform,date_added,notice,status' ):
+		if id == "":
+			raise Exception
 
 		if os.path.exists(f'json_files/info.json'):
-			self.cmc_logger.info('File info already exist')
-		else:
-			params = {'id': id,
-					'aux': info_aux,
-					}
-			endpoint = Cryptocurrency.info.value
-			url = self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint
-			# adding params as string query
-			sq = urllib.parse.urlencode(params, safe=",")
-			response = self.request_session.get(url=url, params=sq)
-			data = json.loads(response.text)
+			self.cmc_logger.debug('File info already exist')
+			data = self._get_info_from_json_file()
 			results = {
 				'timestamp': data['status']['timestamp'],
 				'data': data['data']
 			}
 
-			with open(f'json_files/info.json', 'w') as file:
-				json.dump(results, file, indent=6)
-				self.cmc_logger.info(f'File created: info.json')
+		else:
+			params = {'id': id[:-1],
+					'aux': info_aux,
+					}
 
-			return results
+			endpoint = Cryptocurrency.info.value
+			url = self.SANDBOX_URL + endpoint if self.is_sandbox_url else self.BASE_URL + endpoint
+
+			# adding params as string query
+			sq = urllib.parse.urlencode(params, safe=',"')
+			response = self.request_session.get(url=url, params=sq)
+			print(f' is this the data {response.url}')
+
+			data = json.loads(response.text)
+			print(f'response {data}')
+			results = {
+				'timestamp': data['status']['timestamp'],
+				'data': data['data']
+			}
+
+		with open(f'json_files/info.json', 'w') as file:
+			json.dump(results, file, indent=6)
+			self.cmc_logger.info(f'File created: info.json')
+
+		return results

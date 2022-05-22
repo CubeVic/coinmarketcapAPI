@@ -128,7 +128,7 @@ class Prices(MydataBase):
 		self.cur.execute(SELECT_LAST_UPDATED)
 		try:
 			row = self.cur.fetchone()[0]
-			sql_logger.info(f'This is what we got:\n{row}')
+			sql_logger.info(f'last update in DB {row}')
 		except Exception as e:
 			sql_logger.error(f'something when wrong, maybe the database is empty\n{e}')
 		return row

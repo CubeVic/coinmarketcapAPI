@@ -64,7 +64,7 @@ def _read_price_info_from_json_file() -> dict:
 	try:
 		with open(f'json_files/price-{timestamp}.json') as file:
 			read_data = json.load(file)
-		return read_data['data']
+		return read_data
 	except FileNotFoundError as e:
 		return e
 
@@ -186,6 +186,7 @@ if os.path.exists(f'json_files/price-{timestamp}.json'):
 else:
 	init_logger.debug('Calling CMC API to get prices')
 	price_data_payload = cmc.get_updated_prices_from_cmc()
+
 
 ids = [str(data['id'])for data in price_data_payload['data']]
 cmc_ids = ",".join(ids)
