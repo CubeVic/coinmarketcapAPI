@@ -1,15 +1,15 @@
 import enum
 import os
 
-headers = {
+cmc_headers = {
 	'Accepts': 'application/json',
 	'X-CMC_PRO_API_KEY': os.environ['CMC_API'],
 }
 
 
 class Urls(enum.Enum):
-	base = 'base_url'
-	sandbox = 'sandbox_url'
+	base = 'https://pro-api.coinmarketcap.com'
+	sandbox = 'https://sandbox-api.coinmarketcap.com'
 
 
 class Cryptocurrency(enum.Enum):
@@ -19,6 +19,10 @@ class Cryptocurrency(enum.Enum):
 	quote_latest = '/v2/cryptocurrency/quotes/latest'
 	category = "/v1/cryptocurrency/category"
 	categories = "/v1/cryptocurrency/categories"
+
+
+class Cryptocurrency_endpoints_arguments(enum.Enum):
+	cmc_id_map_args = ['listing_status', 'start', 'limit', 'sort', 'symbol', 'aux']
 
 
 class Fiat(enum.Enum):
@@ -41,6 +45,7 @@ class Tools(enum.Enum):
 # not support for free tier
 class Blockchain(enum.Enum):
 	pass
+
 
 # Deprecated
 class Partners(enum.Enum):
