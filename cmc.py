@@ -78,7 +78,9 @@ class Wrapper(ABC):
 
     def fetch_data(self, url_endpoint: str, params: str) -> (http_code, response_content_json):
         try:
-            map_resp = self.request_session.get(url=url_endpoint, params=params)
+            # Make ' and , safe characters
+            param_sq = urllib.parse.urlencode(params, safe=',"')
+            map_resp = self.request_session.get(url=url_endpoint, params=param_sq)
 
         except requests.exceptions.ConnectionError as connection_error:
             self.cmc_logger.error(
@@ -89,7 +91,8 @@ class Wrapper(ABC):
 
         else:
             self.cmc_logger.info(msg=f'response => {map_resp.status_code}')
-
+            print(params)
+            print(map_resp.url)
             return map_resp.status_code, self._response_builder(map_resp.text)
 
 
@@ -97,7 +100,7 @@ class Cmc(Wrapper):
     def __init__(self, url: str):
         super().__init__(url)
 
-    def get_map(self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs):
+    def get_cmc_id_map(self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs):
         # arg_list = ['listing_status', 'start', 'limit', 'sort', 'symbol', 'aux']
         # creating the params for the string query base in kwargs
         kwargs['sort'] = sort
@@ -120,25 +123,42 @@ class Cmc(Wrapper):
         endpoint = Cryptocurrency.info.value
         url = self.url + endpoint
 
-        # make the ',' as a save characters
-        param_sq = urllib.parse.urlencode(params, safe=',"')
-
-        _, response = self.fetch_data(url_endpoint=url, params=param_sq)
+        _, response = self.fetch_data(url_endpoint=url, params=params)
 
         cmc_utils.save_to_json(file_name="info", payload=response)
         return response
 
+    def get_listing(self, start: int, limit: int, **kwargs):
+        # In base Plan of the API this end point accept just one currency convert
+        kwargs["start"] = start
+        kwargs["limit"] = limit
+        params = self._validate_args(expected_args=Crypto_endpoint_args.list_price.value, given_args=kwargs)
 
-base_url = Urls.sandbox.value
-# base_url = Urls.base.value
+        endpoint = Cryptocurrency.latest_list_price.value
+        url = self.url + endpoint
+
+        _, response = self.fetch_data(url_endpoint=url, params=params)
+        timestamp = cmc_utils._get_todays_timestamp()
+
+        cmc_utils.save_to_json(file_name=f"latest_listing_{timestamp}", payload=response)
+        return response
+
+
+
+# base_url = Urls.sandbox.value
+base_url = Urls.base.value
 cmc = Cmc(url=base_url)
 
-print(cmc.get_map(listing_status="active", start=1, limit=1000, aux=""))
+# cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000, aux="")
 # print(cmc.get_map(listing_status="active", start=1, aux=""))
 
 ids_string = cmc_utils.get_cmc_ids()
 
-cmc.get_info(cmc_id=ids_string)
+# cmc.get_info(cmc_id=ids_string)
+# cmc.get_listing(start=1, limit=1000, convert_id="2820")
+cmc.get_listing(start=1, limit=1000, convert="USD")
+
+
 
 
 # adding params as string query
