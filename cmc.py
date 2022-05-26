@@ -18,10 +18,12 @@ response_content_json = dict()
 
 def extraction_data_list(payload: dict) -> (dict, list):
     """Data value in the response contain a list of dictionaries"""
-    metadata = {"timestamp": payload["status"]["timestamp"],
-                "credit_count": payload["status"]["credit_count"],
-                "error_message": payload["status"]["error_message"],
-                "list_keys": [k for k in payload["data"][0].keys()]}
+    metadata = {
+        "timestamp": payload["status"]["timestamp"],
+        "credit_count": payload["status"]["credit_count"],
+        "error_message": payload["status"]["error_message"],
+        "list_keys": [k for k in payload["data"][0].keys()],
+    }
     data = payload["data"]
     return metadata, data
 
@@ -30,12 +32,13 @@ def extraction_data_dict(payload: dict) -> (dict, dict):
     """Data value in the response contain a dictionary each key of the dictionary represent an item,
     item can have a dictionary inside"""
 
-    metadata = {"timestamp": payload["status"]["timestamp"],
-                "credit_count": payload["status"]["credit_count"],
-                "error_message": payload["status"]["error_message"],
-                }
+    metadata = {
+        "timestamp": payload["status"]["timestamp"],
+        "credit_count": payload["status"]["credit_count"],
+        "error_message": payload["status"]["error_message"],
+    }
     dict_keys = list(payload["data"].values())[0]
-    print(f' type: {dict_keys}\n {dict_keys}')
+    print(f" type: {dict_keys}\n {dict_keys}")
     list_keys = list(dict_keys.keys())
     metadata["list_keys"] = list_keys
     data = payload["data"]
@@ -45,27 +48,34 @@ def extraction_data_dict(payload: dict) -> (dict, dict):
 def extraction_data_nested_list(payload: dict) -> (dict, dict):
     """Data value in the response contain a data key that contain a list of dictionaries"""
 
-    metadata = {"timestamp": payload["status"]["timestamp"],
-                "credit_count": payload["status"]["credit_count"],
-                "error_message": payload["status"]["error_message"],
-                "list_keys": [k for k in payload["data"]["data"][0].keys()]}
+    metadata = {
+        "timestamp": payload["status"]["timestamp"],
+        "credit_count": payload["status"]["credit_count"],
+        "error_message": payload["status"]["error_message"],
+        "list_keys": [k for k in payload["data"]["data"][0].keys()],
+    }
 
     data = payload["data"]["data"]
     return metadata, data
 
+
 def extraction_data_single_dict(payload: dict) -> (dict, dict):
     """Data value in the response contain the information in a dictionary form
 
-     These responses are mostly about one specific item, not several
-     """
-    metadata = {"timestamp": payload["status"]["timestamp"],
-                "credit_count": payload["status"]["credit_count"],
-                "error_message": payload["status"]["error_message"],
-                "list_keys": [k for k in payload["data"].keys()]}
+    These responses are mostly about one specific item, not several
+    """
+    metadata = {
+        "timestamp": payload["status"]["timestamp"],
+        "credit_count": payload["status"]["credit_count"],
+        "error_message": payload["status"]["error_message"],
+        "list_keys": [k for k in payload["data"].keys()],
+    }
     data = payload["data"]
     return metadata, data
 
-def extration_data_original_format(payload: dict) -> (dict, dict):
+
+def extraction_data_original_format(payload: dict) -> (dict, dict):
+    """This is for testing, the format is similar to original replay"""
     metadata = payload["status"]
     data = payload["data"]
     return metadata, data
@@ -89,70 +99,20 @@ class Wrapper(ABC):
     def url(self, value):
         self._base_url = value
 
-    # @staticmethod
-    # def _extract_data_keys(raw_response_data: dict) -> str:
-    #     print(raw_response_data["data"])
-    #     # some response contains list of dict-like object other are nested dict-like items
-    #     if type(raw_response_data["data"]) == list:
-    #         list_keys = [k for k in raw_response_data["data"][0].keys()]
-    #     else:
-    #         print(type(raw_response_data["data"]))
-    #         if raw_response_data["data"].get("data", False):
-    #             list_keys = [k for k in raw_response_data["data"]["data"][0].keys()]
-    #         else:
-    #             dict_keys = list(raw_response_data["data"].values())[0]
-    #             print(f' type: {dict_keys}\n {dict_keys}')
-    #             list_keys = list(dict_keys.keys())
-    #
-    #     return ",".join(list_keys)
+    @staticmethod
+    def _response_builder(
+        raw_response: str, extract_method: Callable[[dict], (dict, Any)]
+    ) -> dict:
 
-    # Use template patter to implement the extract data keys and _response_builder
-
-    # def _response_builder(self, raw_response: str) -> dict:
-    #
-    #     response = {}
-    #     print(raw_response)
-    #     json_raw_response = json.loads(raw_response)
-    #     try:
-    #         data = json_raw_response["data"]
-    #     except KeyError as e:
-    #         self.cmc_logger.error(
-    #             f"there is not {e} in the response, possible request error.\n{json_raw_response}"
-    #         )
-    #     else:
-    #         response_timestamp = json_raw_response["status"]["timestamp"]
-    #         response_cost = json_raw_response["status"]["credit_count"]
-    #         key_list = self._extract_data_keys(json_raw_response)
-    #         response["metadata"] = {
-    #                 "timestamp": response_timestamp,
-    #                 "credit_count": response_cost,
-    #                 "key_list": key_list,
-    #             }
-    #
-    #         if type(data) == list:
-    #             response["data"] = data
-    #         else:
-    #             if data.get("data", False):
-    #                 response["data"] = data["data"]
-    #             else:
-    #                 response["data"] = data
-    #
-    #         return response
-
-    def _response_builder(self, raw_response: str, extract_method: Callable[[dict],(dict,Any)]) -> dict:
-
-        response = {"metadata": {},
-                    "data": {}
-                    }
+        response = {"metadata": {}, "data": {}}
         print(raw_response)
         json_raw_response = json.loads(raw_response)
 
-        metadata, data = extract_method(payload=json_raw_response)
+        metadata, data = extract_method(json_raw_response)
         response["metadata"] = metadata
         response["data"] = data
 
         return response
-
 
     @staticmethod
     def _validate_args(expected_args, given_args):
@@ -163,7 +123,9 @@ class Wrapper(ABC):
         print(f"params {params}")
         return params
 
-    def fetch_data(self, endpoint: str, params: dict, extract_method) -> (http_code, response_content_json):
+    def fetch_data(
+        self, endpoint: str, params: dict, extract_method
+    ) -> (http_code, response_content_json):
 
         url_endpoint = self.url + endpoint
         try:
@@ -180,9 +142,11 @@ class Wrapper(ABC):
 
         else:
             self.cmc_logger.info(msg=f"response => {map_resp.status_code}")
-            return map_resp.status_code, self._response_builder(raw_response=map_resp.text,extract_method=extract_method) # until template for extration data finished
-            # return map_resp.status_code, map_resp.text
 
+            response = self._response_builder(
+                raw_response=map_resp.text, extract_method=extract_method
+            )
+            return map_resp.status_code, response
 
 
 class Cmc(Wrapper):
@@ -202,7 +166,9 @@ class Cmc(Wrapper):
 
         endpoint = Cryptocurrency.cmc_id_map.value
 
-        _, response = self.fetch_data(endpoint=endpoint, params=params, extract_method=extraction_data_list)
+        _, response = self.fetch_data(
+            endpoint=endpoint, params=params, extract_method=extraction_data_list
+        )
 
         cmc_utils.save_to_json(file_name="cmc_ids_mapping", payload=response)
         return response
@@ -215,9 +181,10 @@ class Cmc(Wrapper):
         )
 
         endpoint = Cryptocurrency.info.value
-        url = self.url + endpoint
 
-        _, response = self.fetch_data(endpoint=endpoint, params=params, extract_method=extraction_data_dict)
+        _, response = self.fetch_data(
+            endpoint=endpoint, params=params, extract_method=extraction_data_dict
+        )
 
         cmc_utils.save_to_json(file_name="info", payload=response)
         return response
@@ -231,9 +198,10 @@ class Cmc(Wrapper):
         )
 
         endpoint = Cryptocurrency.latest_list_price.value
-        url = self.url + endpoint
 
-        _, response = self.fetch_data(endpoint=endpoint, params=params,extract_method=extraction_data_list)
+        _, response = self.fetch_data(
+            endpoint=endpoint, params=params, extract_method=extraction_data_list
+        )
         timestamp = cmc_utils.get_todays_timestamp()
 
         cmc_utils.save_to_json(
@@ -242,9 +210,9 @@ class Cmc(Wrapper):
         return response
 
     def get_categories(self, start: int, limit: int, **kwargs):
-        """ Get the categories
+        """Get the categories
 
-        Get the coin categories form CoinmarketCap
+        Get the coin categories form Coin market Cap
 
         Args:
             start (int):
@@ -254,17 +222,21 @@ class Cmc(Wrapper):
 
         kwargs["start"] = start
         kwargs["limit"] = limit
-        params = self._validate_args(expected_args=Crypto_endpoint_args.categories_args.value, given_args=kwargs)
+        params = self._validate_args(
+            expected_args=Crypto_endpoint_args.categories_args.value, given_args=kwargs
+        )
 
         endpoint = Cryptocurrency.categories.value
 
-        _, response = self.fetch_data(endpoint=endpoint, params=params, extract_method=extraction_data_list)
+        _, response = self.fetch_data(
+            endpoint=endpoint, params=params, extract_method=extraction_data_list
+        )
         # cmc_utils.save_to_json(file_name="test", payload=response)
         cmc_utils.save_to_json(file_name=f"categories", payload=response)
         return response
 
     def get_category(self, cmc_id: str, **kwargs):
-        """ Get information of a single category
+        """Get information of a single category
 
         Args:
             cmc_id (str): Then Category ID given by Coin market Cap. on the API is named id.
@@ -286,16 +258,20 @@ class Cmc(Wrapper):
         """
         kwargs["id"] = cmc_id
 
-        params = self._validate_args(expected_args=Crypto_endpoint_args.category_args.value, given_args=kwargs)
+        params = self._validate_args(
+            expected_args=Crypto_endpoint_args.category_args.value, given_args=kwargs
+        )
 
         endpoint = Cryptocurrency.category.value
 
-        _, response = self.fetch_data(endpoint=endpoint, params=params, extract_method=extraction_data_single_dict)
+        _, response = self.fetch_data(
+            endpoint=endpoint, params=params, extract_method=extraction_data_single_dict
+        )
 
-        cmc_utils.save_to_json(file_name=f"category_{response['data']['title']}", payload=response)
+        cmc_utils.save_to_json(
+            file_name=f"category_{response['data']['title']}", payload=response
+        )
         return response
-
-
 
 
 base_url = Urls.sandbox.value
@@ -311,4 +287,3 @@ cmc = Cmc(url=base_url)
 #
 # cmc.get_categories(start=1, limit=5000)
 # cmc.get_category(cmc_id="625d09d246203827ab52dd53")
-
