@@ -23,11 +23,13 @@ class Cryptocurrency(enum.Enum):
 
 class CryptocurrencyEndPointsArgs(enum.Enum):
     id_map_args = ["listing_status", "start", "limit", "sort", "symbol", "aux"]
-    list_price = ["start", "limit", "price_min", "price_max", "market_cap_min", "market_cap_max", "volume_24h_min",
+    list_price_args = ["start", "limit", "price_min", "price_max", "market_cap_min", "market_cap_max", "volume_24h_min",
                   "volume_24h_max", "circulating_supply_min", "circulating_supply_max", "percent_change_24h_min",
                   "percent_change_24h_max", "convert", "convert_id", "sort", "sort_dir", "cryptocurrency_type",
                   "tag", "aux"]
     info_arg = ["id", "slug", "symbol", "address", "aux"]
+    categories_args = ["start", "limit", "id", "slug", "symbol"]
+    category_args = ["id", "start", "limit", "convert", "convert_id"]
 
 
 

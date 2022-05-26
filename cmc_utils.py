@@ -28,7 +28,7 @@ def fetch_cmc_logger() -> logging.Logger:
 	return cmc_logger
 
 
-def _get_todays_timestamp() -> str:
+def get_todays_timestamp() -> str:
 	"""Get today's timestamp
 
 	:rtype: object
