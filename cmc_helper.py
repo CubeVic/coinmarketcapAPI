@@ -28,6 +28,7 @@ class CryptocurrencyEndPointsArgs(enum.Enum):
                   "percent_change_24h_max", "convert", "convert_id", "sort", "sort_dir", "cryptocurrency_type",
                   "tag", "aux"]
     info_arg = ["id", "slug", "symbol", "address", "aux"]
+    quotes_latest_args = ["id", "slug", "symbol", "convert", "convert_id", "aux", "skip_invalid"]
     categories_args = ["start", "limit", "id", "slug", "symbol"]
     category_args = ["id", "start", "limit", "convert", "convert_id"]
 
