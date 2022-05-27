@@ -23,24 +23,33 @@ class Cryptocurrency(enum.Enum):
 
 class CryptocurrencyEndPointsArgs(enum.Enum):
     id_map_args = ["listing_status", "start", "limit", "sort", "symbol", "aux"]
-    list_price_args = ["start", "limit", "price_min", "price_max", "market_cap_min", "market_cap_max", "volume_24h_min",
-                  "volume_24h_max", "circulating_supply_min", "circulating_supply_max", "percent_change_24h_min",
-                  "percent_change_24h_max", "convert", "convert_id", "sort", "sort_dir", "cryptocurrency_type",
-                  "tag", "aux"]
+    list_price_args = [
+        "start", "limit", "price_min", "price_max", "market_cap_min", "market_cap_max", "volume_24h_min",
+        "volume_24h_max", "circulating_supply_min", "circulating_supply_max", "percent_change_24h_min",
+        "percent_change_24h_max", "convert", "convert_id", "sort", "sort_dir", "cryptocurrency_type",
+        "tag", "aux"]
     info_arg = ["id", "slug", "symbol", "address", "aux"]
     quotes_latest_args = ["id", "slug", "symbol", "convert", "convert_id", "aux", "skip_invalid"]
     categories_args = ["start", "limit", "id", "slug", "symbol"]
     category_args = ["id", "start", "limit", "convert", "convert_id"]
 
 
-
 class Fiat(enum.Enum):
     fiat = "/v1/fiat/map"
+
+
+class FiatEndPointArgs(enum.Enum):
+    fiat_args = ["start", "limit", "sort", "include_metals"]
 
 
 class Exchange(enum.Enum):
     exchange_map = "/v1/exchange/map"
     exchange_info = "/v1/exchange/info"
+
+
+class ExchangeEndPointArgs(enum.Enum):
+    exchange_map_args = ["listing_status","slug","start","limit","sort","aux","crypto_id"]
+    exchange_info_args = ["id", "slug", "aux"]
 
 
 class GlobalMetrics(enum.Enum):

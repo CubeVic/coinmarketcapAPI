@@ -62,3 +62,4 @@ def get_cmc_ids() -> str:
 	ids = [str(data["id"]) for data in maps_data_json]
 	ids_string = ",".join(ids)
 	return ids_string
+
