@@ -56,9 +56,16 @@ class GlobalMetrics(enum.Enum):
     latest_global_metrics = "/v1/global-metrics/quotes/latest"
 
 
+class GlobalMetricsEndPointArgs(enum.Enum):
+    latest_global_metrics_args =["convert", "convert_id"]
+
+
 class Tools(enum.Enum):
     price_conversion = "/v1/tools/price-conversion"
 
+
+class ToolsEndPointArgs(enum.Enum):
+    price_conversion_arg = ["amount", "id", "symbol", "time", "convert", "convert_id"]
 
 # not support for free tier
 class Blockchain(enum.Enum):

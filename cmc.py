@@ -8,6 +8,8 @@ from cmc_helper import Urls, Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tool
 from cmc_helper import CryptocurrencyEndPointsArgs as Crypto_ep_args
 from cmc_helper import FiatEndPointArgs as Fiat_ep_args
 from cmc_helper import ExchangeEndPointArgs as Ex_ep_args
+from cmc_helper import GlobalMetricsEndPointArgs as GM_ep_args
+from cmc_helper import ToolsEndPointArgs as T_ep_args
 from cmc_helper import cmc_headers
 from cmc_datahandler import AbstractDataHandler, HandlerDataDict, HandlerDataSingleDict, HandlerDataList, \
     HandlerOriginalStructure
@@ -364,6 +366,80 @@ class Cmc(Wrapper):
 
         return response
 
+    # GlobalMetrics endPoint
+    def get_latest_global_metrics(self, **kwargs) -> dict:
+        """Returns the latest global cryptocurrency market metrics.
+
+        Use the "convert" option to return market values in multiple fiat and cryptocurrency conversions
+        (for the basic tier this might be limited to one)
+
+        Args:
+            **kwargs:
+                -> convert	(str, optional): Optionally calculate market quotes in up to 120 currencies at once by
+                    passing a comma-separated list of cryptocurrency or fiat currency symbols. Each additional convert
+                    option beyond the first requires an additional call credit. A list of supported fiat options can be
+                    found here. Each conversion is returned in its own "quote" object.
+                -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
+                    This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
+                    convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+
+        Returns:
+            (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
+                data: "the data requested"}
+        """
+        _, response = self.fetch_data(
+            endpoint=GlobalMetrics.latest_global_metrics,
+            endpoint_args=GM_ep_args.latest_global_metrics_args,
+            params=kwargs,
+            data_handler_class=HandlerDataSingleDict)
+        timestamp = cmc_utils.get_todays_timestamp()
+        cmc_utils.save_to_json(
+            file_name=f"Global_metrics_{timestamp}.json",
+            payload=response
+        )
+
+        return response
+
+    # Tools endPoint
+    def get_price_conversion(self, amount: float, cmc_id: str, **kwargs):
+        """Convert an amount of one cryptocurrency or fiat currency into one or more different currencies utilizing the
+            latest market rate for each currency.
+
+        Args:
+            amount (int): [ 1e-8 .. 1000000000000 ] Required An amount of currency to convert. Example: 10.43.
+            cmc_id (str): on the API is  'id', The CoinMarketCap currency ID of the base cryptocurrency or fiat to
+                convert from. Example: "1"
+            **kwargs:
+                -> symbol (str): Alternatively the currency symbol of the base cryptocurrency or fiat to convert from.
+                    Example: "BTC". One "id" or "symbol" is required.
+                -> time (str, optional): Optional timestamp (Unix or ISO 8601) to reference historical pricing during
+                    conversion. If not passed, the current time will be used. If passed, we'll reference the closest
+                    historic values available for this conversion.
+                -> convert (str): Pass up to 120 comma-separated fiat or cryptocurrency symbols to convert the source
+                    amount to.
+                -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
+                    This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
+                    convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+
+        Returns:
+            (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
+                data: "the data requested"}
+        """
+        kwargs["amount"] = amount
+        kwargs["id"] = cmc_id
+        _, response = self.fetch_data(
+            endpoint=Tools.price_conversion,
+            endpoint_args=T_ep_args.price_conversion_arg,
+            params=kwargs,
+            data_handler_class=HandlerDataSingleDict)
+        timestamp = cmc_utils.get_todays_timestamp()
+        cmc_utils.save_to_json(
+            file_name=f"Price_conversion_{cmc_id}_{timestamp}.json",
+            payload=response
+        )
+
+        return response
+
 # base_url = Urls.sandbox.value
 base_url = Urls.base.value
 cmc = Cmc(url=base_url)
@@ -381,4 +457,6 @@ cmc = Cmc(url=base_url)
 # cmc.get_quote_latest(cmc_id=1)
 # print(cmc.get_fiat())
 # print(cmc.get_exchange_map())
-print(cmc.get_exchange_info(cmc_ex_id="16"))
+# print(cmc.get_exchange_info(cmc_ex_id="16"))
+# print(cmc.get_latest_global_metrics())
+print(cmc.get_price_conversion(amount=1.0,cmc_id="1"))
