@@ -1,19 +1,24 @@
 import enum
-import urllib
+from urllib import parse
+# import urllib
 from typing import Any
-import requests
-from requests import Session
-import cmc_utils
-from cmc_helper import Urls, Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tools, Key
-from cmc_helper import CryptocurrencyEndPointsArgs as Crypto_ep_args
-from cmc_helper import FiatEndPointArgs as Fiat_ep_args
-from cmc_helper import ExchangeEndPointArgs as Ex_ep_args
-from cmc_helper import GlobalMetricsEndPointArgs as GM_ep_args
-from cmc_helper import ToolsEndPointArgs as T_ep_args
-from cmc_helper import cmc_headers
-from cmc_datahandler import AbstractDataHandler, HandlerDataDict, HandlerDataSingleDict, HandlerDataList, \
-    HandlerOriginalStructure
-from abc import ABC, abstractmethod
+# import requests
+from requests import Session, exceptions
+from src import cmc_utils
+from src.cmc_helper import Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tools, Key
+from src.cmc_helper import (CryptocurrencyEndPointsArgs as Crypto_ep_args,
+                            FiatEndPointArgs as Fiat_ep_args,
+                            ExchangeEndPointArgs as Ex_ep_args,
+                            GlobalMetricsEndPointArgs as GM_ep_args,
+                            ToolsEndPointArgs as T_ep_args,
+                            KeyEndPointArgs as K_ep_args
+                            )
+from src.cmc_helper import cmc_headers
+from src.cmc_datahandler import (AbstractDataHandler,
+                                 HandlerDataDict,
+                                 HandlerDataSingleDict,
+                                 HandlerDataList,)
+from abc import ABC
 
 
 http_code = int()
@@ -38,7 +43,7 @@ class Wrapper(ABC):
     def url(self, value):
         self._base_url = value
 
-    def _check_args(self,exp_args: Any, given_args: dict) -> dict:
+    def _check_args(self, exp_args: Any, given_args: dict) -> dict:
         self.cmc_logger.debug(
             f"Validating args:\nexpected {exp_args} vs given {list(given_args.keys())}"
         )
@@ -47,7 +52,7 @@ class Wrapper(ABC):
         return params
 
     def fetch_data(
-        self, endpoint: enum, endpoint_args, params: dict, data_handler_class
+        self, endpoint: enum, endpoint_args: enum, params: dict, data_handler_class
     ) -> (http_code, response_content_json):
 
         _params = self._check_args(
@@ -59,14 +64,14 @@ class Wrapper(ABC):
         url_endpoint = self.url + endpoint.value
         try:
             # Make ' and , safe characters
-            param_sq = urllib.parse.urlencode(_params, safe=',"')
+            param_sq = parse.urlencode(_params, safe=',"')
             map_resp = self.request_session.get(url=url_endpoint, params=param_sq)
 
-        except requests.exceptions.ConnectionError as connection_error:
+        except exceptions.ConnectionError as connection_error:
             self.cmc_logger.error(
                 msg=f"There is something wrong with the connection.\n{connection_error}"
             )
-        except requests.exceptions.Timeout as timeout:
+        except exceptions.Timeout as timeout:
             self.cmc_logger.error(msg=f"Timeout. \n{timeout}")
 
         else:
@@ -92,7 +97,7 @@ class Cmc(Wrapper):
         :param kwargs:
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
-                data: "the data requested"}
+                    data: "the data requested"}
         """
 
         # creating the params for the string query base in kwargs
@@ -200,8 +205,13 @@ class Cmc(Wrapper):
                         This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would
                         replace convert=BTC,USD in your query. This parameter cannot be used when convert is used.
         Returns:
-            (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
-                data: "the data requested"}
+            (dict): {metadata: {
+                        "timestamp": "",
+                        "credit_count": "",
+                        "error_message": "",
+                        "list_keys": ""
+                    },
+                    data: "the data requested"}
 
         """
         kwargs["id"] = cmc_id
@@ -294,7 +304,7 @@ class Cmc(Wrapper):
         return response
 
     # Exchange endPoint
-    def get_exchange_map(self,listing_status: str = 'active', **kwargs) -> dict:
+    def get_exchange_map(self, listing_status: str = 'active', **kwargs) -> dict:
         """ Returns a paginated list of all active cryptocurrency exchanges by CoinMarketCap ID
 
         Args:
@@ -333,7 +343,7 @@ class Cmc(Wrapper):
 
         return response
 
-    def get_exchange_info(self,cmc_ex_id: str, **kwargs) -> dict:
+    def get_exchange_info(self, cmc_ex_id: str, **kwargs) -> dict:
         """ Returns metadata for one or more exchanges.
 
         Information include launch date, logo, official website URL, social links, and market fee documentation URL.
@@ -342,12 +352,12 @@ class Cmc(Wrapper):
             cmc_ex_id (str): on the API the parameter is 'id'. One or more comma-separated CoinMarketCap cryptocurrency
                 exchange ids. Example: "1,2".
             **kwargs:
-                -> slug (str): Alternatively, one or more comma-separated exchange names in URL friendly shorthand "slug"
-                format (all lowercase, spaces replaced with hyphens). Example: "binance,gdax". At least one "id" or
-                "slug" is required.
+                -> slug (str): Alternatively, one or more comma-separated exchange names in URL friendly shorthand
+                    "slug" format (all lowercase, spaces replaced with hyphens). Example: "binance,gdax". At least one
+                    "id" or "slug" is required.
                 -> aux (str): Optionally specify a comma-separated list of supplemental data fields to return.
-                Default = "urls,logo,description,date_launched,notice". Pass urls,logo,description,date_launched,
-                notice,status to include all auxiliary fields.
+                    Default = "urls,logo,description,date_launched,notice". Pass urls,logo,description,date_launched,
+                    notice,status to include all auxiliary fields.
 
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -440,23 +450,23 @@ class Cmc(Wrapper):
 
         return response
 
-# base_url = Urls.sandbox.value
-base_url = Urls.base.value
-cmc = Cmc(url=base_url)
+    # Key endPoint
+    def get_key(self):
+        """Returns API key details and usage stats. This endpoint can be used to programmatically monitor your key usage
+            compared to the rate limit and daily/monthly credit limits available to your API plan.
 
-# cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
-# ids_string = cmc_utils.get_cmc_ids()
-# print(len(ids_string))
-# cmc.get_info(cmc_id=ids_string)
-# cmc.get_listing(start=1, limit=1000, convert="USD")
-#
-# cmc.get_categories(start=1, limit=5000)
-# cmc.get_category(cmc_id="625d09d246203827ab52dd53")
+        Returns:
+            (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
+                data: "the data requested"}
+        """
+        _, response = self.fetch_data(
+            endpoint=Key.key_info,
+            endpoint_args=K_ep_args.key_info_args,
+            params={},
+            data_handler_class=HandlerDataSingleDict)
+        cmc_utils.save_to_json(
+            file_name=f"API_info.json",
+            payload=response
+        )
 
-
-# cmc.get_quote_latest(cmc_id=1)
-# print(cmc.get_fiat())
-# print(cmc.get_exchange_map())
-# print(cmc.get_exchange_info(cmc_ex_id="16"))
-# print(cmc.get_latest_global_metrics())
-print(cmc.get_price_conversion(amount=1.0,cmc_id="1"))
+        return response

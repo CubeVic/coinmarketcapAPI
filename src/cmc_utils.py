@@ -31,8 +31,9 @@ def fetch_cmc_logger() -> logging.Logger:
 def get_todays_timestamp() -> str:
 	"""Get today's timestamp
 
-	:rtype: object
-	:return:
+
+	Returns:
+		(str): Timestamp when the request was made
 	"""
 	t = str(datetime.utcfromtimestamp(time.time()))
 	timestamp = t[0: 10].replace("-", "_")
@@ -41,6 +42,14 @@ def get_todays_timestamp() -> str:
 
 
 def save_to_json(file_name: str, payload: Any, timestamp: str = "") -> None:
+	"""Save to a json file.
+
+	Args:
+		file_name (str): name for the file.
+		payload (Any):  Data to save on the file.
+		timestamp (str, optional): timestamp.
+
+	"""
 	file_location = f"json_files/{file_name}{timestamp}.json"
 	if payload is not None:
 		with open(file_location, "w") as file:
@@ -49,7 +58,15 @@ def save_to_json(file_name: str, payload: Any, timestamp: str = "") -> None:
 		raise ValueError(f"There is not data to be save on {file_name}{timestamp}.json")
 
 
-def get_info_from_json_file(file_name) -> dict:
+def get_info_from_json_file(file_name: str) -> dict:
+	"""Read the json file
+
+	Args:
+		file_name (str): nome for the file.
+
+	Returns:
+		(dict): information on the json file.
+	"""
 	with open(f"json_files/{file_name}.json", "r") as file:
 		payload = file.read()
 	# print(f"payload ..... {payload}")
@@ -57,9 +74,12 @@ def get_info_from_json_file(file_name) -> dict:
 
 
 def get_cmc_ids() -> str:
+	"""	Get the Coin Market Cap ids
+
+	Returns:
+		(str): list of ids
+	"""
 	maps = get_info_from_json_file(file_name="cmc_ids_mapping")
-	maps_data_json = maps["data"]
-	ids = [str(data["id"]) for data in maps_data_json]
+	ids = [str(data["id"]) for data in maps["data"]]
 	ids_string = ",".join(ids)
 	return ids_string
-

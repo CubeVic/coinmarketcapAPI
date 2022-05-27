@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 from collections.abc import Callable
 
+
 class AbstractDataHandler(ABC):
 
 	@staticmethod
@@ -35,11 +36,10 @@ class AbstractDataHandler(ABC):
 
 
 class HandlerDataList(AbstractDataHandler):
-
+	"""Data value in the response contain a list of dictionaries"""
 	@staticmethod
 	def data_extraction(payload: dict) -> (dict, list):
-		"""Data value in the response contain a list of dictionaries
-
+		"""
 		If the endpoint return a value data that contain information in a list where each item is a dictionary.
 
 		Args:
@@ -60,12 +60,11 @@ class HandlerDataList(AbstractDataHandler):
 
 
 class HandlerDataDict(AbstractDataHandler):
-
+	"""Data value in the response contain a dictionary each key of the dictionary represent an item,
+		item can have a dictionary inside"""
 	@staticmethod
 	def data_extraction(payload: dict) -> (dict, dict):
-		"""Data value in the response contain a dictionary each key of the dictionary represent an item,
-		item can have a dictionary inside
-
+		"""
 		If the endpoint return a value data that contain information in a dictionary where each item is another dictionary.
 
 		Args:
@@ -90,11 +89,10 @@ class HandlerDataDict(AbstractDataHandler):
 
 
 class HandlerDataNestedDataKey(AbstractDataHandler):
-
+	"""Data value in the response contain a data key that contain a list of dictionaries"""
 	@staticmethod
 	def data_extraction(payload: dict) -> (dict, dict):
-		"""Data value in the response contain a data key that contain a list of dictionaries
-
+		"""
 		If the endpoint return a value data that contain a directory which key is data and the value has different forms.
 
 		Args:
@@ -117,11 +115,10 @@ class HandlerDataNestedDataKey(AbstractDataHandler):
 
 
 class HandlerDataSingleDict(AbstractDataHandler):
-
+	"""Data value in the response contain the information in a dictionary form"""
 	@staticmethod
 	def data_extraction(payload: dict) -> (dict, dict):
-		"""Data value in the response contain the information in a dictionary form
-
+		"""
 		These extractions are focus in result of a request that is trying to get information about one single item, example
 		information about one coin , one category, one blockchain.
 

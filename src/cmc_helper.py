@@ -48,7 +48,7 @@ class Exchange(enum.Enum):
 
 
 class ExchangeEndPointArgs(enum.Enum):
-    exchange_map_args = ["listing_status","slug","start","limit","sort","aux","crypto_id"]
+    exchange_map_args = ["listing_status", "slug", "start", "limit", "sort", "aux", "crypto_id"]
     exchange_info_args = ["id", "slug", "aux"]
 
 
@@ -57,7 +57,7 @@ class GlobalMetrics(enum.Enum):
 
 
 class GlobalMetricsEndPointArgs(enum.Enum):
-    latest_global_metrics_args =["convert", "convert_id"]
+    latest_global_metrics_args = ["convert", "convert_id"]
 
 
 class Tools(enum.Enum):
@@ -66,6 +66,7 @@ class Tools(enum.Enum):
 
 class ToolsEndPointArgs(enum.Enum):
     price_conversion_arg = ["amount", "id", "symbol", "time", "convert", "convert_id"]
+
 
 # not support for free tier
 class Blockchain(enum.Enum):
@@ -79,3 +80,7 @@ class Partners(enum.Enum):
 
 class Key(enum.Enum):
     key_info = "/v1/key/info"
+
+
+class KeyEndPointArgs(enum.Enum):
+    key_info_args = []
