@@ -1,8 +1,6 @@
 import enum
 from urllib import parse
-# import urllib
 from typing import Any
-# import requests
 from requests import Session, exceptions
 from src import cmc_utils
 from src.cmc_helper import Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tools, Key
@@ -27,6 +25,7 @@ response_content_json = dict()
 
 # prepare for possible changes due to free and paid end points difference.
 class Wrapper(ABC):
+    """Abstract class"""
     cmc_logger = cmc_utils.fetch_cmc_logger()
 
     def __init__(self, url: str):
@@ -37,6 +36,7 @@ class Wrapper(ABC):
 
     @property
     def url(self):
+        """Property url"""
         return self._base_url
 
     @url.setter
@@ -52,8 +52,20 @@ class Wrapper(ABC):
         return params
 
     def fetch_data(
-        self, endpoint: enum, endpoint_args: enum, params: dict, data_handler_class
-    ) -> (http_code, response_content_json):
+        self, endpoint: object, endpoint_args: object, params: dict, data_handler_class: object
+    ) -> tuple[int, dict]:
+        """Fetch will do the request to the end point provided and extract the information with the extraction function
+
+        Args:
+            endpoint (enum): The URI for the endpoint.
+            endpoint_args (enum): The URI for the query parameters.
+            params (dict): Parameters for the search query.
+            data_handler_class (AbstractDataHandler): class that will extract the information.
+
+        Returns:
+             (tuple[int, dict]): response contain the http code and the data
+
+        """
 
         _params = self._check_args(
             exp_args=endpoint_args.value,
@@ -90,11 +102,27 @@ class Cmc(Wrapper):
     def get_cmc_id_map(
         self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs
     ) -> dict:
-        """
+        """Returns a mapping of all cryptocurrencies to unique CoinMarketCap ids.
 
-        :param sort:
-        :param listing_status:
-        :param kwargs:
+        Args:
+            listing_status (str): default = "active". Only active cryptocurrencies are returned by default.
+                Pass inactive to get a list of cryptocurrencies that are no longer active. Pass untracked to get a list
+                of cryptocurrencies that are listed but do not yet meet methodology requirements to have tracked markets
+                available. You may pass one or more comma-separated values.
+            sort (str): default = "cmc_rank", options "cmc_rank", "id". What field to sort the list of cryptocurrencies
+                by.
+            **kwargs:
+                -> start (int, optional): >= 1 Optionally offset the start ( 1-based index) of the paginated list of
+                    items to return.
+                -> limit (int, optional): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this
+                    parameter and the "start" parameter to determine your own pagination size.
+                -> symbol (str): Optionally pass a comma-separated list of cryptocurrency symbols to return
+                    CoinMarketCap IDs for. If this option is passed, other options will be ignored.
+                -> aux (str, optional): default = "platform,first_historical_data,last_historical_data,is_active"
+                    Optionally specify a comma-separated list of supplemental data fields to return.
+                    Pass platform,first_historical_data,last_historical_data,is_active,status to include all auxiliary
+                    fields.
+
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                     data: "the data requested"}
@@ -105,8 +133,8 @@ class Cmc(Wrapper):
         kwargs["listing_status"] = listing_status
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.cmc_id_map,
-            endpoint_args=Crypto_ep_args.id_map_args,
+            endpoint=Cryptocurrency.CMC_ID_MAP,
+            endpoint_args=Crypto_ep_args.ID_MAP_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataList)
 
@@ -114,10 +142,23 @@ class Cmc(Wrapper):
         return response
 
     def get_info(self, cmc_id: str, **kwargs):
-        """
+        """Returns all static metadata available for one or more cryptocurrencies. This information includes details
+        like logo, description, official website URL, social links, and links to a cryptocurrency's technical
+        documentation.
 
-        :param cmc_id:
-        :param kwargs:
+        Args:
+            cmc_id (str): One or more comma-separated CoinMarketCap cryptocurrency IDs. Example: "1,2"
+            **kwargs:
+                -> slug (str) Alternatively pass a comma-separated list of cryptocurrency slugs.
+                    Example: "bitcoin,ethereum".
+                -> symbol (str): Alternatively pass one or more comma-separated cryptocurrency symbols.
+                    Example: "BTC,ETH". At least one "id" or "slug" or "symbol" is required for this request.
+                -> address (str): Alternatively pass in a contract address.
+                    Example: "0xc40af1e4fecfa05ce6bab79dcd8b373d2e436c4e"
+                -> aux (str): default = "urls,logo,description,tags,platform,date_added,notice". Optionally specify a
+                    comma-separated list of supplemental data fields to return.
+                    Pass urls,logo,description,tags,platform,date_added,notice,status to include all auxiliary fields.
+
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                 data: "the data requested"}
@@ -126,8 +167,8 @@ class Cmc(Wrapper):
         kwargs["id"] = cmc_id
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.info,
-            endpoint_args=Crypto_ep_args.info_arg,
+            endpoint=Cryptocurrency.INFO,
+            endpoint_args=Crypto_ep_args.INFO_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataDict)
 
@@ -135,11 +176,56 @@ class Cmc(Wrapper):
         return response
 
     def get_listing(self, start: int, limit: int, **kwargs):
-        """
+        """Returns a paginated list of all active cryptocurrencies with latest market data.
 
-        :param start:
-        :param limit:
-        :param kwargs:
+        Args:
+            start (int): >= 1. Optionally offset the start (1-based index) of the paginated list of items to return.
+            limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and the
+                "start" parameter to determine your own pagination size.
+            **kwargs:
+                -> price_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum USD price to
+                    filter results by.
+                -> price_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum USD price to
+                    filter results by.
+                -> market_cap_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum market
+                    cap to filter results by.
+                -> market_cap_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum market
+                    cap to filter results by.
+                -> volume_24h_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum 24 hour
+                    USD volume to filter results by.
+                -> volume_24h_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum 24 hour
+                    USD volume to filter results by.
+                -> circulating_supply_min (int): [ 0 .. 100000000000000000 ]Optionally specify a threshold of minimum
+                    circulating supply to filter results by.
+                -> circulating_supply_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum
+                    circulating supply to filter results by.
+                -> percent_change_24h_min (int): >= -100 Optionally specify a threshold of minimum 24 hour percent
+                    change to filter results by.
+                -> percent_change_24h_max (int): >= -100 Optionally specify a threshold of maximum 24 hour percent
+                    change to filter results by.
+                -> convert (str): Optionally calculate market quotes in up to 120 currencies at once by passing a
+                    comma-separated list of cryptocurrency or fiat currency symbols. Each additional convert option
+                    beyond the first requires an additional call credit. A list of supported fiat options can be found
+                    here. Each conversion is returned in its own "quote" object.
+                -> convert_id (str): Optionally calculate market quotes by CoinMarketCap ID instead of symbol. This
+                    option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
+                    convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                -> sort	(str): default = "market_cap". options = "name""symbol""date_added""market_cap"
+                    "market_cap_strict""price""circulating_supply""total_supply""max_supply""num_market_pairs"
+                    "volume_24h""percent_change_1h""percent_change_24h""percent_change_7d"
+                    "market_cap_by_total_supply_strict""volume_7d""volume_30d" What field to sort the list of
+                    cryptocurrencies by.
+                -> sort_dir (str): options = "asc", "desc" The direction in which to order cryptocurrencies against the
+                    specified sort.
+                -> cryptocurrency_type (str): default = "all". options = "all""coins""tokens".The type of cryptocurrency
+                    to include.
+                -> tag (str): default = "all",options = "all","defi","filesharing".The tag of cryptocurrency to include.
+                -> aux (str): default = "num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,
+                    circulating_supply,total_supply". Optionally specify a comma-separated list of supplemental data
+                    fields to return. Pass num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,
+                    circulating_supply,total_supply,market_cap_by_total_supply,volume_24h_reported,volume_7d,
+                    volume_7d_reported,volume_30d,volume_30d_reported,is_market_cap_included_in_calc to include all
+                    auxiliary fields.
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                 data: "the data requested"}
@@ -149,8 +235,8 @@ class Cmc(Wrapper):
         kwargs["limit"] = limit
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.latest_list_price,
-            endpoint_args=Crypto_ep_args.list_price_args,
+            endpoint=Cryptocurrency.LATEST_LIST_PRICE,
+            endpoint_args=Crypto_ep_args.LIST_PRICE_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataList)
         timestamp = cmc_utils.get_todays_timestamp()
@@ -166,8 +252,16 @@ class Cmc(Wrapper):
         Get the coin categories form Coin market Cap
 
         Args:
-            start (int):
-            limit (int):
+            start (int): >= 1 Optionally offset the start (1-based index) of the paginated list of items to return.
+            limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and the
+                "start" parameter to determine your own pagination size.
+            **kwargs:
+                -> id (str): Filtered categories by one or more comma-separated cryptocurrency CoinMarketCap IDs.
+                    Example: 1,2.
+                -> slug (str): Alternatively filter categories by a comma-separated list of cryptocurrency slugs.
+                    Example: "bitcoin,ethereum".
+                -> symbol (str): Alternatively filter categories one or more comma-separated cryptocurrency symbols.
+                    Example: "BTC,ETH".
 
         Returns:
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -178,8 +272,8 @@ class Cmc(Wrapper):
         kwargs["limit"] = limit
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.categories,
-            endpoint_args=Crypto_ep_args.categories_args,
+            endpoint=Cryptocurrency.CATEGORIES,
+            endpoint_args=Crypto_ep_args.CATEGORIES_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataList)
         # cmc_utils.save_to_json(file_name="test", payload=response)
@@ -217,8 +311,8 @@ class Cmc(Wrapper):
         kwargs["id"] = cmc_id
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.category,
-            endpoint_args=Crypto_ep_args.category_args,
+            endpoint=Cryptocurrency.CATEGORY,
+            endpoint_args=Crypto_ep_args.CATEGORY_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataSingleDict)
         cmc_utils.save_to_json(
@@ -262,8 +356,8 @@ class Cmc(Wrapper):
         kwargs["skip_invalid"] = skip_invalid
 
         _, response = self.fetch_data(
-            endpoint=Cryptocurrency.quote_latest,
-            endpoint_args=Crypto_ep_args.quotes_latest_args,
+            endpoint=Cryptocurrency.QUOTE_LATEST,
+            endpoint_args=Crypto_ep_args.QUOTES_LATEST_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataSingleDict)
         timestamp = cmc_utils.get_todays_timestamp()
@@ -292,8 +386,8 @@ class Cmc(Wrapper):
         """
         kwargs["include_metals"] = True
         _, response = self.fetch_data(
-            endpoint=Fiat.fiat,
-            endpoint_args=Fiat_ep_args.fiat_args,
+            endpoint=Fiat.FIAT,
+            endpoint_args=Fiat_ep_args.FIAT_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataList)
         cmc_utils.save_to_json(
@@ -332,8 +426,8 @@ class Cmc(Wrapper):
         """
         kwargs["listing_status"] = listing_status
         _, response = self.fetch_data(
-            endpoint=Exchange.exchange_map,
-            endpoint_args=Ex_ep_args.exchange_map_args,
+            endpoint=Exchange.EXCHANGE_MAP,
+            endpoint_args=Ex_ep_args.EXCHANGE_MAP_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataList)
         cmc_utils.save_to_json(
@@ -365,8 +459,8 @@ class Cmc(Wrapper):
         """
         kwargs["id"] = cmc_ex_id
         _, response = self.fetch_data(
-            endpoint=Exchange.exchange_info,
-            endpoint_args=Ex_ep_args.exchange_info_args,
+            endpoint=Exchange.EXCHANGE_INFO,
+            endpoint_args=Ex_ep_args.EXCHANGE_INFO_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataDict)
         cmc_utils.save_to_json(
@@ -398,8 +492,8 @@ class Cmc(Wrapper):
                 data: "the data requested"}
         """
         _, response = self.fetch_data(
-            endpoint=GlobalMetrics.latest_global_metrics,
-            endpoint_args=GM_ep_args.latest_global_metrics_args,
+            endpoint=GlobalMetrics.LATEST_GLOBAL_METRICS,
+            endpoint_args=GM_ep_args.LATEST_GLOBAL_METRICS_ARGS,
             params=kwargs,
             data_handler_class=HandlerDataSingleDict)
         timestamp = cmc_utils.get_todays_timestamp()
@@ -438,8 +532,8 @@ class Cmc(Wrapper):
         kwargs["amount"] = amount
         kwargs["id"] = cmc_id
         _, response = self.fetch_data(
-            endpoint=Tools.price_conversion,
-            endpoint_args=T_ep_args.price_conversion_arg,
+            endpoint=Tools.PRICE_CONVERSION,
+            endpoint_args=T_ep_args.PRICE_CONVERSION_ARG,
             params=kwargs,
             data_handler_class=HandlerDataSingleDict)
         timestamp = cmc_utils.get_todays_timestamp()
@@ -460,8 +554,8 @@ class Cmc(Wrapper):
                 data: "the data requested"}
         """
         _, response = self.fetch_data(
-            endpoint=Key.key_info,
-            endpoint_args=K_ep_args.key_info_args,
+            endpoint=Key.KEY_INFO,
+            endpoint_args=K_ep_args.KEY_INFO_ARGS,
             params={},
             data_handler_class=HandlerDataSingleDict)
         cmc_utils.save_to_json(

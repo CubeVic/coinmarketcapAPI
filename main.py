@@ -1,8 +1,9 @@
+"""Main file"""
 from src import cmc, cmc_helper
 
 if __name__ == '__main__':
 	# base_url = cmc_helper.Urls.sandbox.value
-	base_url = cmc_helper.Urls.base.value
+	base_url = cmc_helper.Urls.BASE.value
 	cmc = cmc.Cmc(url=base_url)
 
 	# cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
@@ -17,5 +18,5 @@ if __name__ == '__main__':
 	# print(cmc.get_exchange_map())
 	# print(cmc.get_exchange_info(cmc_ex_id="16"))
 	# print(cmc.get_latest_global_metrics())
-	# print(cmc.get_price_conversion(amount=1.0,cmc_id="1"))
+	print(cmc.get_price_conversion(amount=1.0, cmc_id="1"))
 	print(cmc.get_key())
