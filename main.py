@@ -1,5 +1,5 @@
 """Main file"""
-from src import cmc, cmc_helper
+from cmc_api import cmc, cmc_helper
 
 if __name__ == '__main__':
 	# base_url = cmc_helper.Urls.sandbox.value

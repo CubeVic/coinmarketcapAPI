@@ -2,20 +2,23 @@ import enum
 from urllib import parse
 from typing import Any
 from requests import Session, exceptions
-from src import cmc_utils
-from src.cmc_helper import Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tools, Key
-from src.cmc_helper import (CryptocurrencyEndPointsArgs as Crypto_ep_args,
-                            FiatEndPointArgs as Fiat_ep_args,
-                            ExchangeEndPointArgs as Ex_ep_args,
-                            GlobalMetricsEndPointArgs as GM_ep_args,
-                            ToolsEndPointArgs as T_ep_args,
-                            KeyEndPointArgs as K_ep_args
-                            )
-from src.cmc_helper import cmc_headers
-from src.cmc_datahandler import (AbstractDataHandler,
-                                 HandlerDataDict,
-                                 HandlerDataSingleDict,
-                                 HandlerDataList,)
+from src.cmc_api import cmc_utils
+from src.cmc_api.cmc_helper import Cryptocurrency, Fiat, Exchange, GlobalMetrics, Tools, Key
+from src.cmc_api.cmc_helper import (
+    CryptocurrencyEndPointsArgs as Crypto_ep_args,
+    FiatEndPointArgs as Fiat_ep_args,
+    ExchangeEndPointArgs as Ex_ep_args,
+    GlobalMetricsEndPointArgs as GM_ep_args,
+    ToolsEndPointArgs as T_ep_args,
+    KeyEndPointArgs as K_ep_args,
+)
+from src.cmc_api.cmc_helper import cmc_headers
+from src.cmc_api.cmc_datahandler import (
+    AbstractDataHandler,
+    HandlerDataDict,
+    HandlerDataSingleDict,
+    HandlerDataList,
+)
 from abc import ABC
 
 
@@ -26,6 +29,7 @@ response_content_json = dict()
 # prepare for possible changes due to free and paid end points difference.
 class Wrapper(ABC):
     """Abstract class"""
+
     cmc_logger = cmc_utils.fetch_cmc_logger()
 
     def __init__(self, url: str):
@@ -52,7 +56,11 @@ class Wrapper(ABC):
         return params
 
     def fetch_data(
-        self, endpoint: object, endpoint_args: object, params: dict, data_handler_class: object
+        self,
+        endpoint: object,
+        endpoint_args: object,
+        params: dict,
+        data_handler_class: object,
     ) -> tuple[int, dict]:
         """Fetch will do the request to the end point provided and extract the information with the extraction function
 
@@ -67,10 +75,7 @@ class Wrapper(ABC):
 
         """
 
-        _params = self._check_args(
-            exp_args=endpoint_args.value,
-            given_args=params
-        )
+        _params = self._check_args(exp_args=endpoint_args.value, given_args=params)
 
         self.data_handler = data_handler_class
         url_endpoint = self.url + endpoint.value
@@ -136,7 +141,8 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.CMC_ID_MAP,
             endpoint_args=Crypto_ep_args.ID_MAP_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataList)
+            data_handler_class=HandlerDataList,
+        )
 
         cmc_utils.save_to_json(file_name="cmc_ids_mapping", payload=response)
         return response
@@ -170,7 +176,8 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.INFO,
             endpoint_args=Crypto_ep_args.INFO_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataDict)
+            data_handler_class=HandlerDataDict,
+        )
 
         cmc_utils.save_to_json(file_name="info", payload=response)
         return response
@@ -230,7 +237,7 @@ class Cmc(Wrapper):
             (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                 data: "the data requested"}
         """
-        # In base Plan of the API this end point accept just one currency convert
+        # In base Plan the API accept just one currency convert
         kwargs["start"] = start
         kwargs["limit"] = limit
 
@@ -238,7 +245,8 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.LATEST_LIST_PRICE,
             endpoint_args=Crypto_ep_args.LIST_PRICE_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataList)
+            data_handler_class=HandlerDataList,
+        )
         timestamp = cmc_utils.get_todays_timestamp()
 
         cmc_utils.save_to_json(
@@ -275,9 +283,10 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.CATEGORIES,
             endpoint_args=Crypto_ep_args.CATEGORIES_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataList)
-        # cmc_utils.save_to_json(file_name="test", payload=response)
-        cmc_utils.save_to_json(file_name=f"categories_sandbox", payload=response)
+            data_handler_class=HandlerDataList,
+        )
+
+        cmc_utils.save_to_json(file_name=f"categories", payload=response)
         return response
 
     def get_category(self, cmc_id: str, **kwargs):
@@ -314,7 +323,8 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.CATEGORY,
             endpoint_args=Crypto_ep_args.CATEGORY_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataSingleDict)
+            data_handler_class=HandlerDataSingleDict,
+        )
         cmc_utils.save_to_json(
             file_name=f"category_{response['data']['title']}", payload=response
         )
@@ -359,7 +369,8 @@ class Cmc(Wrapper):
             endpoint=Cryptocurrency.QUOTE_LATEST,
             endpoint_args=Crypto_ep_args.QUOTES_LATEST_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataSingleDict)
+            data_handler_class=HandlerDataSingleDict,
+        )
         timestamp = cmc_utils.get_todays_timestamp()
         cmc_utils.save_to_json(
             file_name=f"cmc_id_{cmc_id}_quote_{timestamp}", payload=response
@@ -368,7 +379,7 @@ class Cmc(Wrapper):
 
     # Fiat endPoint
     def get_fiat(self, **kwargs) -> dict:
-        """ Returns a mapping of all supported fiat currencies to unique CoinMarketCap ids
+        """Returns a mapping of all supported fiat currencies to unique CoinMarketCap ids
 
         Args:
             **kwargs :
@@ -389,17 +400,15 @@ class Cmc(Wrapper):
             endpoint=Fiat.FIAT,
             endpoint_args=Fiat_ep_args.FIAT_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataList)
-        cmc_utils.save_to_json(
-            file_name=f"fiat_ids.json",
-            payload=response
+            data_handler_class=HandlerDataList,
         )
+        cmc_utils.save_to_json(file_name=f"fiat_ids.json", payload=response)
 
         return response
 
     # Exchange endPoint
-    def get_exchange_map(self, listing_status: str = 'active', **kwargs) -> dict:
-        """ Returns a paginated list of all active cryptocurrency exchanges by CoinMarketCap ID
+    def get_exchange_map(self, listing_status: str = "active", **kwargs) -> dict:
+        """Returns a paginated list of all active cryptocurrency exchanges by CoinMarketCap ID
 
         Args:
             listing_status	(str): default = "active" Only active exchanges are returned by default. Pass inactive to
@@ -429,16 +438,14 @@ class Cmc(Wrapper):
             endpoint=Exchange.EXCHANGE_MAP,
             endpoint_args=Ex_ep_args.EXCHANGE_MAP_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataList)
-        cmc_utils.save_to_json(
-            file_name=f"Exchange_cmc_id.json",
-            payload=response
+            data_handler_class=HandlerDataList,
         )
+        cmc_utils.save_to_json(file_name=f"Exchange_cmc_id.json", payload=response)
 
         return response
 
     def get_exchange_info(self, cmc_ex_id: str, **kwargs) -> dict:
-        """ Returns metadata for one or more exchanges.
+        """Returns metadata for one or more exchanges.
 
         Information include launch date, logo, official website URL, social links, and market fee documentation URL.
 
@@ -462,11 +469,9 @@ class Cmc(Wrapper):
             endpoint=Exchange.EXCHANGE_INFO,
             endpoint_args=Ex_ep_args.EXCHANGE_INFO_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataDict)
-        cmc_utils.save_to_json(
-            file_name=f"Exchange_{cmc_ex_id}.json",
-            payload=response
+            data_handler_class=HandlerDataDict,
         )
+        cmc_utils.save_to_json(file_name=f"Exchange_{cmc_ex_id}.json", payload=response)
 
         return response
 
@@ -495,11 +500,11 @@ class Cmc(Wrapper):
             endpoint=GlobalMetrics.LATEST_GLOBAL_METRICS,
             endpoint_args=GM_ep_args.LATEST_GLOBAL_METRICS_ARGS,
             params=kwargs,
-            data_handler_class=HandlerDataSingleDict)
+            data_handler_class=HandlerDataSingleDict,
+        )
         timestamp = cmc_utils.get_todays_timestamp()
         cmc_utils.save_to_json(
-            file_name=f"Global_metrics_{timestamp}.json",
-            payload=response
+            file_name=f"Global_metrics_{timestamp}.json", payload=response
         )
 
         return response
@@ -535,11 +540,11 @@ class Cmc(Wrapper):
             endpoint=Tools.PRICE_CONVERSION,
             endpoint_args=T_ep_args.PRICE_CONVERSION_ARG,
             params=kwargs,
-            data_handler_class=HandlerDataSingleDict)
+            data_handler_class=HandlerDataSingleDict,
+        )
         timestamp = cmc_utils.get_todays_timestamp()
         cmc_utils.save_to_json(
-            file_name=f"Price_conversion_{cmc_id}_{timestamp}.json",
-            payload=response
+            file_name=f"Price_conversion_{cmc_id}_{timestamp}.json", payload=response
         )
 
         return response
@@ -557,10 +562,8 @@ class Cmc(Wrapper):
             endpoint=Key.KEY_INFO,
             endpoint_args=K_ep_args.KEY_INFO_ARGS,
             params={},
-            data_handler_class=HandlerDataSingleDict)
-        cmc_utils.save_to_json(
-            file_name=f"API_info.json",
-            payload=response
+            data_handler_class=HandlerDataSingleDict,
         )
+        cmc_utils.save_to_json(file_name=f"API_info.json", payload=response)
 
         return response
