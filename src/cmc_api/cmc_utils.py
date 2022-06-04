@@ -8,8 +8,11 @@ import time
 import os
 
 
-def fetch_cmc_logger(log_file_location: str = "src/logs/", log_file_name: str = "cmc_api.log",
-                     log_level: str | int = logging.DEBUG, logger_name: str = __name__) -> logging.Logger:
+def fetch_cmc_logger(log_file_location: str = "src/logs/",
+                     log_file_name: str = "cmc_api.log",
+                     log_level: str | int = logging.DEBUG,
+                     logger_name: str = __name__) -> logging.Logger:
+    """ Set the Log Objects """
     location_file = log_file_location + log_file_name
     string_formatter_file = "%(asctime)s - %(message)s"
     string_formatter_stream = "%(levelname)s - function: %(funcName)s - %(message)s"
@@ -38,7 +41,9 @@ def fetch_cmc_logger(log_file_location: str = "src/logs/", log_file_name: str = 
     return c_logger
 
 
-logger = fetch_cmc_logger(log_file_name="cmc_utils.log", log_level=logging.ERROR, logger_name="utils")
+logger = fetch_cmc_logger(log_file_name="cmc_utils.log",
+                          log_level=logging.ERROR,
+                          logger_name="utils")
 
 
 def get_todays_timestamp() -> str:
@@ -113,28 +118,28 @@ def get_cmc_ids() -> str:
         ids_string = ",".join(ids)
 
     #     # return ids_string
-    except TypeError as e:
-        logger.error(msg=f"The cmc mapping file doesn't exist")
+    except TypeError:
+        logger.error(msg="The cmc mapping file doesn't exist")
     else:
         return ids_string
-        # raise ValueError(f'maps (internal variable) is empty or False')
 
 
 def create_config_file(file_name: str = 'config.ini'):
+    """Create the config file"""
     config = configparser.ConfigParser()
     config['DEFAULT'] = {
         "current_day_used": 0,
         "current_day_left": 33,
         "current_month_used": 0,
         "current_month_left": 333,
-        "Last_updated" : 0,
+        "Last_updated": 0,
     }
 
     with open(file_name, 'w') as configfile:
         config.write(configfile)
 
 
-def get_configuration_file(name: str='config.ini', section: str='DEFAULT'):
+def get_configuration_file(name: str = 'config.ini', section: str = 'DEFAULT'):
     """Get the configuration from configuration file and provide and config object to edit them"""
 
     # You should change 'test' to your preferred folder.
@@ -154,7 +159,7 @@ def get_configuration_file(name: str='config.ini', section: str='DEFAULT'):
     return config, configurations
 
 
-def read_configuration_file(config_key: str | bool = False, file: str='config.ini'):
+def read_configuration_file(config_key: str | bool = False, file: str = 'config.ini'):
     """Read the configuration files and get back the value of the key provided"""
 
     config, configurations = get_configuration_file(name=file)
@@ -177,5 +182,3 @@ def save_dict_value_to_configuration_file(dict_value):
 
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
-
-
