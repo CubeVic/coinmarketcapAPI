@@ -7,7 +7,7 @@
 [//]: # (![Coin Market Cap]&#40;https://img.shields.io/badge/CMC_API-{{version}}-purple?style=for-the-badge&logoColor=gray&color=ffffff&labelColor=purple&#41;)
 ![Coin Market Cap][1]
 
-[1]:https://img.shields.io/badge/CMC_API--version---purple?style=for-the-badge&logoColor=gray&color=ffffff&labelColor=purple
+[1]:https://img.shields.io/badge/CMC_API-0.0.1-purple?style=for-the-badge&logoColor=gray&color=ffffff&labelColor=purple
 
 CMC_API is a Python-client for the Coin Market Cap API.   
 This client provides support for the basic or free tier at the moment.
