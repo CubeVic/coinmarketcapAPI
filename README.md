@@ -30,46 +30,22 @@ The most relevant difference is the addition of a list of keys available in each
 
 [//]: # (- If you are using badges, add them here.)
 
+----------------------------------------
 ## :ledger: Index
 
 - [About](#beginner-about)
-
-[//]: # (- [Usage]&#40;#zap-usage&#41;)
-
-[//]: # (  - [Installation]&#40;#electric_plug-installation&#41;)
-
-[//]: # (  - [Commands]&#40;#package-commands&#41;)
-
-[//]: # (- [Development]&#40;#wrench-development&#41;)
-
-[//]: # (  - [Pre-Requisites]&#40;#notebook-pre-requisites&#41;)
-
-[//]: # (  - [Developmen Environment]&#40;#nut_and_bolt-development-environment&#41;)
-
-[//]: # (  - [File Structure]&#40;#file_folder-file-structure&#41;)
-
-[//]: # (  - [Build]&#40;#hammer-build&#41;  )
-
-[//]: # (  - [Deployment]&#40;#rocket-deployment&#41;  )
-
-[//]: # (- [Community]&#40;#cherry_blossom-community&#41;)
-
-[//]: # (  - [Contribution]&#40;#fire-contribution&#41;)
-
-[//]: # (  - [Branches]&#40;#cactus-branches&#41;)
-
-[//]: # (  - [Guideline]&#40;#exclamation-guideline&#41;  )
-
-[//]: # (- [FAQ]&#40;#question-faq&#41;)
-
-[//]: # (- [Resources]&#40;#page_facing_up-resources&#41;)
-
-[//]: # (- [Gallery]&#40;#camera-gallery&#41;)
-
-[//]: # (- [Credit/Acknowledgment]&#40;#star2-creditacknowledgment&#41;)
-
-[//]: # (- [License]&#40;#lock-license&#41;)
-
+  - [Why Use the Client](#Why use the Client:)
+- [Usage](#zap-usage)
+- [Deployment](#rocket-deployment)  
+  - [Pre-Requisites](#Pre-Requisites)
+  - [File Structure](#File-Structure)
+- [Community](#cherry_blossom-community)
+  - [Contribution](#fire-contribution)
+  - [Branches](#cactus-branches)
+  - [Guideline](#exclamation-guideline)  
+- [Resources](#page_facing_up-resources)
+- [License](#lock-license)
+----------------------------------------
 ##  :beginner: About
 The CoinMarketCap API is an API provided by the company with the same name. This API provides cryptocurrency data such as price, volume, market cap, and exchange data.
 
@@ -96,19 +72,6 @@ base_url = cmc_helper.Urls.BASE.value
 cmc = cmc.Cmc(url=base_url)
 cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
 ```
-
-###  :electric_plug: Installation
-- Steps on how to install this project, to use it.
-- Be very detailed here, For example, if you have tools which run on different operating systems, write installation steps for all of them.
-
-```
-$ add installations steps if you have to.
-```
-
-[//]: # ()
-[//]: # (###  :package: Commands)
-
-[//]: # (- Commands to start the project.)
 
 ##  :wrench: Development
 Still working in this part but any contribution or suggestion is more than welcome
