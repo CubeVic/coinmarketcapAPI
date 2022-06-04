@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 from collections.abc import Callable
 
+from src.cmc_api.cmc_utils import read_configuration_file
+
 
 class AbstractDataHandler(ABC):
     @staticmethod
@@ -26,8 +28,6 @@ class AbstractDataHandler(ABC):
                 (dict): Returns a response in dict format
 
         """
-
-        print(raw_resp)
         json_raw_response = json.loads(raw_resp)
 
         metadata, data = ext_method(json_raw_response)
@@ -84,7 +84,6 @@ class HandlerDataDict(AbstractDataHandler):
             "error_message": payload["status"]["error_message"],
         }
         dict_keys = list(payload["data"].values())[0]
-        print(f" type: {dict_keys}\n {dict_keys}")
         list_keys = list(dict_keys.keys())
         metadata["list_keys"] = list_keys
         data = payload["data"]

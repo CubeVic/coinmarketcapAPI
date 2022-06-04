@@ -1,8 +1,35 @@
 # Introduction
-![bumpver](https://img.shields.io/badge/unitest-Code?style=for-the-badge&logo=python&logoColor=gray&color=ffffff) ![Python](https://img.shields.io/badge/Python-Code?style=for-the-badge&logo=Python&logoColor=gray&color=ffffff) 
-![Coin Market Cap](https://img.shields.io/badge/coinmarketcap-Code?style=for-the-badge&logo=coinmarketcap&logoColor=gray&color=ffffff)  
 
-A Python-client for the Coin Market Cap API.   
+[//]: # (![bumpver]&#40;https://img.shields.io/badge/unitest-code?style=for-the-badge&logo=python&logoColor=gray&color=ffffff&#41; )
+![python](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python&logoColor=blue&color=ffffff&labelColor=purple)
+![Coin Market Cap](https://img.shields.io/badge/coinmarketcap-Code?style=for-the-badge&logo=coinmarketcap&logoColor=gray&color=ffffff)
+![Coin Market Cap](https://img.shields.io/badge/CMC_API-{{version}}-purple?style=for-the-badge&logoColor=gray&color=ffffff&labelColor=purple)
+
+[//]: # ([I'm an inline-style link]&#40;https://www.somewebsite.com&#41;)
+
+[//]: # ()
+[//]: # ([I'm an inline-style link with title]&#40;https://www.somewebsite.com "somewebsite's Homepage"&#41;)
+
+[//]: # ()
+[//]: # ([I'm a reference-style link][Arbitrary case-insensitive reference text])
+
+[//]: # ()
+[//]: # ([I'm a relative reference to a repository file]&#40;../blob/master/LICENSE&#41;)
+
+[//]: # ()
+[//]: # ([You can use numbers for reference-style link definitions][1])
+
+[//]: # ()
+[//]: # (Or leave it empty and use the [link text itself])
+
+[//]: # ()
+[//]: # (Some text to show that the reference links can follow later.)
+
+[arbitrary case-insensitive reference text]: https://www.somewebsite.org
+[1]: v0.0.1
+[link text itself]: http://www.somewebsite.com
+
+CMC_API is a Python-client for the Coin Market Cap API.   
 This client provides support for the basic or free tier at the moment.
 However, it is open for extension to anyone who has access to paid packages.  
 It provides access to all the available endpoint on the API and produce a result similar to the original API with some 

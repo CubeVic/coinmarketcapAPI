@@ -1,8 +1,8 @@
-#TODO:
-#   provide the option for enable json file saving or disable it
+# TODO:
 #   More information about the credit usage
 
 import enum
+import logging
 from urllib import parse
 from typing import Any
 from requests import Session, exceptions
@@ -34,13 +34,16 @@ response_content_json = dict()
 class Wrapper(ABC):
     """Abstract class"""
 
-    cmc_logger = cmc_utils.fetch_cmc_logger()
+    cmc_logger = cmc_utils.fetch_cmc_logger(log_level=logging.INFO)
 
-    def __init__(self, url: str):
+    def __init__(self, url: str, save_to_json: bool):
         self._base_url = url
+        self.save_to_json = save_to_json
         self.request_session = Session()
         self.request_session.headers.update(cmc_headers)
         self.data_handler = AbstractDataHandler
+        cmc_utils.create_config_file()
+        self._update_config_file()
 
     @property
     def url(self):
@@ -60,11 +63,11 @@ class Wrapper(ABC):
         return params
 
     def fetch_data(
-        self,
-        endpoint: object,
-        endpoint_args: object,
-        params: dict,
-        data_handler_class: object,
+            self,
+            endpoint: object,
+            endpoint_args: object,
+            params: dict,
+            data_handler_class: object,
     ) -> tuple[int, dict]:
         """Fetch will do the request to the end point provided and extract the information with the extraction function
 
@@ -103,13 +106,44 @@ class Wrapper(ABC):
             )
             return map_resp.status_code, response
 
+    def get_key_info(self) -> dict:
+        """Returns API key details and usage stats. This endpoint can be used to programmatically monitor your key usage
+           compared to the rate limit and daily/monthly credit limits available to your API plan.
+
+        Returns:
+           (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
+           data: "the data requested"}
+        """
+        _, response = self.fetch_data(
+            endpoint=Key.KEY_INFO,
+            endpoint_args=K_ep_args.KEY_INFO_ARGS,
+            params={},
+            data_handler_class=HandlerDataSingleDict,
+        )
+
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name=f"API_info.json", payload=response)
+
+        return response
+
+    def _update_config_file(self):
+        api_usage = self.get_key_info()
+        values_to_add = {
+            "current_day_used": api_usage['data']["usage"]["current_day"]["credits_used"],
+            "current_day_left": api_usage['data']["usage"]["current_day"]["credits_left"],
+            "current_month_used": api_usage['data']["usage"]["current_month"]["credits_left"],
+            "current_month_left": api_usage['data']["usage"]["current_month"]["credits_left"],
+            "Last_updated": api_usage["metadata"]["timestamp"]}
+        print(api_usage['data']["usage"]["current_day"]["credits_used"],)
+        cmc_utils.save_dict_value_to_configuration_file(values_to_add)
+
 
 class Cmc(Wrapper):
-    def __init__(self, url: str):
-        super().__init__(url)
+    def __init__(self, url: str, save_to_json: bool = False):
+        super().__init__(url, save_to_json)
 
     def get_cmc_id_map(
-        self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs
+            self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs
     ) -> dict:
         """Returns a mapping of all cryptocurrencies to unique CoinMarketCap ids.
 
@@ -147,8 +181,8 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataList,
         )
-
-        cmc_utils.save_to_json(file_name="cmc_ids_mapping", payload=response)
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name="cmc_ids_mapping", payload=response)
         return response
 
     def get_info(self, cmc_id: str, **kwargs):
@@ -182,8 +216,8 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataDict,
         )
-
-        cmc_utils.save_to_json(file_name="info", payload=response)
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name="info", payload=response)
         return response
 
     def get_listing(self, start: int, limit: int, **kwargs):
@@ -251,11 +285,11 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataList,
         )
-        timestamp = cmc_utils.get_todays_timestamp()
-
-        cmc_utils.save_to_json(
-            file_name=f"latest_listing_{timestamp} ", payload=response
-        )
+        if self.save_to_json:
+            timestamp = cmc_utils.get_todays_timestamp()
+            cmc_utils.save_to_json(
+                file_name=f"latest_listing_{timestamp} ", payload=response
+            )
         return response
 
     def get_categories(self, start: int, limit: int, **kwargs):
@@ -289,8 +323,8 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataList,
         )
-
-        cmc_utils.save_to_json(file_name=f"categories", payload=response)
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name=f"categories", payload=response)
         return response
 
     def get_category(self, cmc_id: str, **kwargs):
@@ -329,9 +363,10 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataSingleDict,
         )
-        cmc_utils.save_to_json(
-            file_name=f"category_{response['data']['title']}", payload=response
-        )
+        if self.save_to_json:
+            cmc_utils.save_to_json(
+                file_name=f"category_{response['data']['title']}", payload=response
+            )
         return response
 
     def get_quote_latest(self, cmc_id: str, skip_invalid: bool = True, **kwargs):
@@ -375,10 +410,11 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataSingleDict,
         )
-        timestamp = cmc_utils.get_todays_timestamp()
-        cmc_utils.save_to_json(
-            file_name=f"cmc_id_{cmc_id}_quote_{timestamp}", payload=response
-        )
+        if self.save_to_json:
+            timestamp = cmc_utils.get_todays_timestamp()
+            cmc_utils.save_to_json(
+                file_name=f"cmc_id_{cmc_id}_quote_{timestamp}", payload=response
+            )
         return response
 
     # Fiat endPoint
@@ -406,7 +442,9 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataList,
         )
-        cmc_utils.save_to_json(file_name=f"fiat_ids.json", payload=response)
+
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name=f"fiat_ids.json", payload=response)
 
         return response
 
@@ -444,7 +482,9 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataList,
         )
-        cmc_utils.save_to_json(file_name=f"Exchange_cmc_id.json", payload=response)
+
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name=f"Exchange_cmc_id.json", payload=response)
 
         return response
 
@@ -475,7 +515,9 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataDict,
         )
-        cmc_utils.save_to_json(file_name=f"Exchange_{cmc_ex_id}.json", payload=response)
+
+        if self.save_to_json:
+            cmc_utils.save_to_json(file_name=f"Exchange_{cmc_ex_id}.json", payload=response)
 
         return response
 
@@ -506,10 +548,11 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataSingleDict,
         )
-        timestamp = cmc_utils.get_todays_timestamp()
-        cmc_utils.save_to_json(
-            file_name=f"Global_metrics_{timestamp}.json", payload=response
-        )
+        if self.save_to_json:
+            timestamp = cmc_utils.get_todays_timestamp()
+            cmc_utils.save_to_json(
+                file_name=f"Global_metrics_{timestamp}.json", payload=response
+            )
 
         return response
 
@@ -546,28 +589,31 @@ class Cmc(Wrapper):
             params=kwargs,
             data_handler_class=HandlerDataSingleDict,
         )
-        timestamp = cmc_utils.get_todays_timestamp()
-        cmc_utils.save_to_json(
-            file_name=f"Price_conversion_{cmc_id}_{timestamp}.json", payload=response
-        )
+        if self.save_to_json:
+            timestamp = cmc_utils.get_todays_timestamp()
+            cmc_utils.save_to_json(
+                file_name=f"Price_conversion_{cmc_id}_{timestamp}.json", payload=response
+            )
 
         return response
 
-    # Key endPoint
-    def get_key(self):
-        """Returns API key details and usage stats. This endpoint can be used to programmatically monitor your key usage
-            compared to the rate limit and daily/monthly credit limits available to your API plan.
-
-        Returns:
-            (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
-                data: "the data requested"}
-        """
-        _, response = self.fetch_data(
-            endpoint=Key.KEY_INFO,
-            endpoint_args=K_ep_args.KEY_INFO_ARGS,
-            params={},
-            data_handler_class=HandlerDataSingleDict,
-        )
-        cmc_utils.save_to_json(file_name=f"API_info.json", payload=response)
-
-        return response
+    # # Key endPoint
+    # def get_key(self):
+    #     """Returns API key details and usage stats. This endpoint can be used to programmatically monitor your key usage
+    #         compared to the rate limit and daily/monthly credit limits available to your API plan.
+    #
+    #     Returns:
+    #         (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
+    #             data: "the data requested"}
+    #     """
+    #     _, response = self.fetch_data(
+    #         endpoint=Key.KEY_INFO,
+    #         endpoint_args=K_ep_args.KEY_INFO_ARGS,
+    #         params={},
+    #         data_handler_class=HandlerDataSingleDict,
+    #     )
+    #
+    #     if self.save_to_json:
+    #         cmc_utils.save_to_json(file_name=f"API_info.json", payload=response)
+    #
+    #     return response

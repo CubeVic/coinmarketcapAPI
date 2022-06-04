@@ -20,4 +20,6 @@ push = false
 "setup.cfg" = [
     'version = "{version}"'
 ]
+"README.md" = [
+    '{{version}} = "{version}"']
 
