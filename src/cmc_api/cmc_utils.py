@@ -3,20 +3,26 @@ import logging
 from datetime import datetime
 from typing import Any
 import time
+import os
 
 
 def fetch_cmc_logger() -> logging.Logger:
+
+    location_file = "src/logs/cmc_api.log"
+    string_formatter_file = "%(asctime)s - %(message)s"
+    string_formatter_stream = "%(levelname)s - function: %(funcName)s - %(message)s"
+
     cmc_logger = logging.getLogger(__name__)
     cmc_logger.setLevel(logging.DEBUG)
 
     file_formatter = logging.Formatter(
-        "%(asctime)s - %(message)s", datefmt="%d-%b-%y %H:%M:%S"
+        string_formatter_file, datefmt="%d-%b-%y %H:%M:%S"
     )
     stream_formatter = logging.Formatter(
-        "%(levelname)s - function: %(funcName)s - %(message)s"
+        string_formatter_stream
     )
 
-    file_handler = logging.FileHandler("logs/cmc_api.log")
+    file_handler = logging.FileHandler(location_file)
     file_handler.setFormatter(file_formatter)
 
     stream_handler = logging.StreamHandler()
@@ -50,6 +56,15 @@ def save_to_json(file_name: str, payload: Any, timestamp: str = "") -> None:
             timestamp (str, optional): timestamp.
 
     """
+
+    # You should change 'test' to your preferred folder.
+    my_json_directory = "json_files"
+
+    # If folder doesn't exist, then create it.
+    if not os.path.isdir(my_json_directory):
+        os.makedirs(my_json_directory)
+        print("created directory: ", my_json_directory)
+
     file_location = f"json_files/{file_name}{timestamp}.json"
     if payload is not None:
         with open(file_location, "w") as file:
