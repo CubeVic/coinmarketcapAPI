@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.bumpver]
-current_version = "0.1.3b0"
+current_version = "0.1.4b0"
 version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
@@ -21,5 +21,5 @@ push = false
     'version = "{version}"'
 ]
 "README.md" = [
-    "version = {version}"]
+    'version = "{version}"']
 
