@@ -4,10 +4,6 @@
 ![python](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python&logoColor=blue&color=ffffff&labelColor=purple)
 ![Coin Market Cap](https://img.shields.io/badge/coinmarketcap-Code?style=for-the-badge&logo=coinmarketcap&logoColor=gray&color=ffffff)
 
-[//]: # (![Coin Market Cap]&#40;https://img.shields.io/badge/CMC_API-{{version}}-purple?style=for-the-badge&logoColor=gray&color=ffffff&labelColor=purple&#41;)
-
-![Version](https://img.shields.io/endpoint?url=https://shield.abap.space/version-shield-json/github/CubeVic/coinmarketcapAPI/pyproject.toml/version)
-
 CMC_API is a Python-client for the Coin Market Cap API.   
 This client provides support for the basic or free tier at the moment.
 However, it is open for extension to anyone who has access to paid packages.  
