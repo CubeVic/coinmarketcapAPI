@@ -1,3 +1,7 @@
+#TODO:
+#   provide the option for enable json file saving or disable it
+#   More information about the credit usage
+
 import enum
 from urllib import parse
 from typing import Any
