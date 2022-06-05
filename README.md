@@ -74,6 +74,42 @@ base_url = cmc_helper.Urls.BASE.value
 cmc = cmc.Cmc(url=base_url)
 cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
 ```
+The response will be similar to:
+
+```json
+{
+  "metadata": {
+    "timestamp": "2022-06-04T13:14:05.108Z",
+    "credit_count": 1,
+    "error_message": null,
+    "list_keys": [
+      "id",
+      "name",
+      "symbol",
+      "slug",
+      "rank",
+      "is_active",
+      "first_historical_data",
+      "last_historical_data",
+      "platform"
+    ]
+  },
+  "data": [
+    {
+      "id": 1,
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "slug": "bitcoin",
+      "rank": 1,
+      "is_active": 1,
+      "first_historical_data": "2013-04-28T18:47:21.000Z",
+      "last_historical_data": "2022-06-04T13:09:00.000Z",
+      "platform": null
+    },
+    ...
+  ]
+}
+```
 
 ##  :wrench: Development
 Still working in this part but any contribution or suggestion is more than welcome

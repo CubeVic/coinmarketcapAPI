@@ -69,7 +69,8 @@ class Wrapper(ABC):
             params: dict,
             data_handler_class: object,
     ) -> tuple[int, dict]:
-        """Fetch will do the request to the end point provided and extract the information with the extraction function
+        """Fetch will do the request to the end point provided and extract
+        the information with the extraction function
 
         Args:
             endpoint (enum): The URI for the endpoint.
@@ -99,7 +100,7 @@ class Wrapper(ABC):
             self.cmc_logger.error(msg=f"Timeout. \n{timeout}")
 
         else:
-            self.cmc_logger.info(msg=f"response => {map_resp.status_code}")
+            self.cmc_logger.debug(msg=f"response => {map_resp.status_code}")
 
             response = self.data_handler.response_builder(
                 raw_resp=map_resp.text, ext_method=data_handler_class.data_extraction
@@ -134,7 +135,6 @@ class Wrapper(ABC):
             "current_month_used": api_usage['data']["usage"]["current_month"]["credits_left"],
             "current_month_left": api_usage['data']["usage"]["current_month"]["credits_left"],
             "Last_updated": api_usage["metadata"]["timestamp"]}
-        print(api_usage['data']["usage"]["current_day"]["credits_used"],)
         cmc_utils.save_dict_value_to_configuration_file(values_to_add)
 
 

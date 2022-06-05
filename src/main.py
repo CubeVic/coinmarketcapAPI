@@ -1,13 +1,13 @@
 """Main file"""
-from cmc_api import cmc, cmc_helper
+from src.cmc_api import cmc, cmc_helper
 from src.cmc_api import cmc_utils
 
 if __name__ == '__main__':
 	# base_url = cmc_helper.Urls.SANDBOX.value
 	base_url = cmc_helper.Urls.BASE.value
-	cmc = cmc.Cmc(url=base_url)
+	cmc = cmc.Cmc(url=base_url, save_to_json=True)
 
-	cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
+	# cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
 	ids_string = cmc_utils.get_cmc_ids()
 	# print(len(ids_string))
 	# cmc.get_info(cmc_id=ids_string)

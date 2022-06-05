@@ -1,3 +1,4 @@
+"""Helper functions - Utils"""
 import configparser
 import json
 import logging
@@ -53,8 +54,8 @@ def get_todays_timestamp() -> str:
     Returns:
             (str): Timestamp when the request was made
     """
-    t = str(datetime.utcfromtimestamp(time.time()))
-    timestamp = t[0:10].replace("-", "_")
+    timestamp = str(datetime.utcfromtimestamp(time.time()))
+    timestamp = timestamp[0:10].replace("-", "_")
 
     return timestamp
 
@@ -79,13 +80,13 @@ def save_to_json(file_name: str, payload: Any, timestamp: str = "") -> None:
 
     file_location = f"json_files/{file_name}{timestamp}.json"
     if payload is not None:
-        with open(file_location, "w") as file:
+        with open(file=file_location, mode="w", encoding="utf-8") as file:
             json.dump(payload, file, indent=6)
     else:
         raise ValueError(f"There is not data to be save on {file_name}{timestamp}.json")
 
 
-def get_info_from_json_file(file_name: str) -> dict:
+def get_info_from_json_file(file_name: str) -> dict | None:
     """Read the json file
 
     Args:
@@ -94,19 +95,22 @@ def get_info_from_json_file(file_name: str) -> dict:
     Returns:
             (dict): information on the json file.
     """
+
     try:
-        with open(f"json_files/{file_name}.json", "r") as file:
+        with open(file=f"json_files/{file_name}.json", mode="r", encoding="utf-8") as file:
             payload = file.read()
             data_payload = json.loads(payload)
-    except FileNotFoundError as e:
-        logger.error(f"The file {file_name}.json doesnt exist\n{e} ")
-    except JSONDecodeError as e:
-        logger.error(f"The file {file_name}.json exist but is empty\n{e}\n")
+    except FileNotFoundError as error:
+        logger.error("The file %s.json doesnt exist\n%s ", file_name, error)
+        return None
+    except JSONDecodeError as error:
+        logger.error("The file %s.json exist but is empty\n%s\n", file_name, error)
+        return None
     else:
         return data_payload
 
 
-def get_cmc_ids() -> str:
+def get_cmc_ids() -> str | None:
     """Get the Coin Market Cap ids
 
     Returns:
@@ -120,6 +124,7 @@ def get_cmc_ids() -> str:
     #     # return ids_string
     except TypeError:
         logger.error(msg="The cmc mapping file doesn't exist")
+        return None
     else:
         return ids_string
 
@@ -135,7 +140,7 @@ def create_config_file(file_name: str = 'config.ini'):
         "Last_updated": 0,
     }
 
-    with open(file_name, 'w') as configfile:
+    with open(file=file_name, mode='w', encoding="utf-8") as configfile:
         config.write(configfile)
 
 
@@ -145,10 +150,10 @@ def get_configuration_file(name: str = 'config.ini', section: str = 'DEFAULT'):
     # You should change 'test' to your preferred folder.
     my_config = 'config.ini'
 
-    # If folder doesn't exist, then create it.
-    if not os.path.isdir(my_config):
+    # If file doesn't exist, then create it.
+    if not os.path.isfile(my_config):
         create_config_file()
-        logger.info("created file: ", my_config)
+        logger.info("created file: %s", my_config)
 
     config = configparser.ConfigParser()
     config.read(name)
@@ -165,14 +170,12 @@ def read_configuration_file(config_key: str | bool = False, file: str = 'config.
     config, configurations = get_configuration_file(name=file)
     if config_key:
         return config, configurations[config_key]
-    else:
-        return config, configurations
+    return config, configurations
 
 
 def save_dict_value_to_configuration_file(dict_value):
     """Read the configuration files and get back the value of the key provided
 
-    TODO: Refactoring the Get_configuration_file()
     """
 
     config, configurations = get_configuration_file()
@@ -180,5 +183,5 @@ def save_dict_value_to_configuration_file(dict_value):
     for key, value in dict_value.items():
         configurations[key] = f'{value}'
 
-    with open('config.ini', 'w') as configfile:
+    with open(file='config.ini', mode='w', encoding="utf-8") as configfile:
         config.write(configfile)
