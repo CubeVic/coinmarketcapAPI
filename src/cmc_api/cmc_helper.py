@@ -17,17 +17,6 @@ class Urls(enum.Enum):
     SANDBOX = "https://sandbox-api.coinmarketcap.com"
 
 
-class Cryptocurrency(enum.Enum):
-    """Cryptocurrency endpoints"""
-
-    CMC_ID_MAP = "/v1/cryptocurrency/map"
-    LATEST_LIST_PRICE = "/v1/cryptocurrency/listings/latest"
-    INFO = "/v2/cryptocurrency/info"
-    QUOTE_LATEST = "/v2/cryptocurrency/quotes/latest"
-    CATEGORY = "/v1/cryptocurrency/category"
-    CATEGORIES = "/v1/cryptocurrency/categories"
-
-
 class CryptocurrencyEndPointsArgs(enum.Enum):
     """Cryptocurrency EndPoint Arguments"""
 
@@ -67,10 +56,30 @@ class CryptocurrencyEndPointsArgs(enum.Enum):
     CATEGORY_ARGS = ["id", "start", "limit", "convert", "convert_id"]
 
 
-class Fiat(enum.Enum):
-    """FIAT EndPoint"""
+class Cryptocurrency(enum.Enum):
+    """Cryptocurrency endpoints"""
 
-    FIAT = "/v1/fiat/map"
+    CMC_ID_MAP = [
+        "/v1/cryptocurrency/map",
+        CryptocurrencyEndPointsArgs.ID_MAP_ARGS.value,
+    ]
+    LATEST_LIST_PRICE = [
+        "/v1/cryptocurrency/listings/latest",
+        CryptocurrencyEndPointsArgs.LIST_PRICE_ARGS.value,
+    ]
+    INFO = ["/v2/cryptocurrency/info", CryptocurrencyEndPointsArgs.INFO_ARGS.value]
+    QUOTE_LATEST = [
+        "/v2/cryptocurrency/quotes/latest",
+        CryptocurrencyEndPointsArgs.QUOTES_LATEST_ARGS.value,
+    ]
+    CATEGORY = [
+        "/v1/cryptocurrency/category",
+        CryptocurrencyEndPointsArgs.CATEGORY_ARGS.value,
+    ]
+    CATEGORIES = [
+        "/v1/cryptocurrency/categories",
+        CryptocurrencyEndPointsArgs.CATEGORIES_ARGS.value,
+    ]
 
 
 class FiatEndPointArgs(enum.Enum):
@@ -79,11 +88,10 @@ class FiatEndPointArgs(enum.Enum):
     FIAT_ARGS = ["start", "limit", "sort", "include_metals"]
 
 
-class Exchange(enum.Enum):
-    """Exchange EndPoint"""
+class Fiat(enum.Enum):
+    """FIAT EndPoint"""
 
-    EXCHANGE_MAP = "/v1/exchange/map"
-    EXCHANGE_INFO = "/v1/exchange/info"
+    FIAT = ["/v1/fiat/map", FiatEndPointArgs.FIAT_ARGS.value]
 
 
 class ExchangeEndPointArgs(enum.Enum):
@@ -101,10 +109,11 @@ class ExchangeEndPointArgs(enum.Enum):
     EXCHANGE_INFO_ARGS = ["id", "slug", "aux"]
 
 
-class GlobalMetrics(enum.Enum):
-    """Global Metrics EndPoint"""
+class Exchange(enum.Enum):
+    """Exchange EndPoint"""
 
-    LATEST_GLOBAL_METRICS = "/v1/global-metrics/quotes/latest"
+    EXCHANGE_MAP = ["/v1/exchange/map", ExchangeEndPointArgs.EXCHANGE_MAP_ARGS.value]
+    EXCHANGE_INFO = ["/v1/exchange/info", ExchangeEndPointArgs.EXCHANGE_INFO_ARGS.value]
 
 
 class GlobalMetricsEndPointArgs(enum.Enum):
@@ -113,16 +122,28 @@ class GlobalMetricsEndPointArgs(enum.Enum):
     LATEST_GLOBAL_METRICS_ARGS = ["convert", "convert_id"]
 
 
-class Tools(enum.Enum):
-    """Tools EndPoint"""
+class GlobalMetrics(enum.Enum):
+    """Global Metrics EndPoint"""
 
-    PRICE_CONVERSION = "/v1/tools/price-conversion"
+    LATEST_GLOBAL_METRICS = [
+        "/v1/global-metrics/quotes/latest",
+        GlobalMetricsEndPointArgs.LATEST_GLOBAL_METRICS_ARGS.value,
+    ]
 
 
 class ToolsEndPointArgs(enum.Enum):
     """Tools EndPoint Arguments"""
 
     PRICE_CONVERSION_ARG = ["amount", "id", "symbol", "time", "convert", "convert_id"]
+
+
+class Tools(enum.Enum):
+    """Tools EndPoint"""
+
+    PRICE_CONVERSION = [
+        "/v1/tools/price-conversion",
+        ToolsEndPointArgs.PRICE_CONVERSION_ARG.value,
+    ]
 
 
 # # not support for free tier
@@ -138,10 +159,4 @@ class ToolsEndPointArgs(enum.Enum):
 class Key(enum.Enum):
     """Key EndPoint"""
 
-    KEY_INFO = "/v1/key/info"
-
-
-class KeyEndPointArgs(enum.Enum):
-    """Key EndPoint Arguments"""
-
-    KEY_INFO_ARGS = []
+    KEY_INFO = ["/v1/key/info", ""]

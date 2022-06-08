@@ -34,6 +34,10 @@ class CmcUtilsTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         os.remove('config.ini')
+        # TODO: remove logs folder and the content, now i have an error that said
+        #  PermissionError: [WinError 32] The process cannot access the file because it is being used by another
+        #  process: '../logs\\cmc_utils.log'
+
 
 if __name__ == '__main__':
     unittest.main()
