@@ -12,7 +12,7 @@ class CmcUtilsTest(unittest.TestCase):
     def test_create_config_file(self):
         """Testing function create_config_file()"""
         cmc_utils.create_config_file()
-        my_config = 'config.ini'
+        my_config = "config.ini"
         self.assertTrue(expr=os.path.isfile(my_config))
 
     def test_get_configuration_file(self):
@@ -22,21 +22,24 @@ class CmcUtilsTest(unittest.TestCase):
         self.assertIsInstance(obj=configuration, cls=configparser.SectionProxy)
 
     def test_read_configuration_file_without_config_key(self):
-        """Testing the function read_configuration_file """
+        """Testing the function read_configuration_file"""
         config, configuration = cmc_utils.read_configuration_file()
         self.assertIsInstance(obj=config, cls=configparser.ConfigParser)
         self.assertIsInstance(obj=configuration, cls=configparser.SectionProxy)
 
     def test_read_configuration_file_wit_config_key(self):
-        """Testing the function read_configuration_file """
-        _, configuration = cmc_utils.read_configuration_file(config_key="current_day_used")
+        """Testing the function read_configuration_file"""
+        _, configuration = cmc_utils.read_configuration_file(
+            config_key="current_day_used"
+        )
         self.assertNotIsInstance(obj=configuration, cls=configparser.SectionProxy)
 
     def tearDown(self) -> None:
-        os.remove('config.ini')
+        os.remove("config.ini")
         # TODO: remove logs folder and the content, now i have an error that said
         #  PermissionError: [WinError 32] The process cannot access the file because it is being used by another
         #  process: '../logs\\cmc_utils.log'
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
