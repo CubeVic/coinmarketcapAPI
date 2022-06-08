@@ -38,6 +38,5 @@ class CmcUtilsTest(unittest.TestCase):
         #  PermissionError: [WinError 32] The process cannot access the file because it is being used by another
         #  process: '../logs\\cmc_utils.log'
 
-
 if __name__ == '__main__':
     unittest.main()
