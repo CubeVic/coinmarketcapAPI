@@ -5,7 +5,7 @@ import enum
 
 
 def get_headers(api_key):
-    """Create the headers """
+    """Create the headers"""
     cmc_headers = {
         "Accepts": "application/json",
         "X-CMC_PRO_API_KEY": api_key,

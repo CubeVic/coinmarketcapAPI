@@ -9,10 +9,9 @@ CMC_API is a Python-client for the Coin Market Cap API.
 This client provides support for the basic or free tier at the moment.
 However, it is open for extension to anyone who has access to paid packages.  
 
-It provides access to all the available endpoint on the API and produce a result similar to the original API with some 
+It provides access to all the available endpoints on the API and produces a result similar to the original API with some 
 minor difference. 
-The most relevant difference is the addition of a list of keys available in each answer, as shown in the bellow example.
-
+The most relevant difference is the addition of a list of keys available in each answer, as shown in the below example.
 ```json
 {
       "metadata": {
