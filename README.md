@@ -153,10 +153,8 @@ As mentioned before the contribution guidelines are not done yet, but any report
 
  ### Branches
 
-1. **`master`** is the main development branch.
-
-2. **`main`** is the production branch.
-3. **`Development`** is the experimental development branch.
+1. **`main`** is the production branch.
+2. **`Development`** is the experimental development branch.
 
 ## Resources
 If you want more information about the Coin market cap API you can visit their side [coinmarketcapAPI](https://coinmarketcap.com/api/documentation/v1/)
