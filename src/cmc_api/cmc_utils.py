@@ -257,7 +257,8 @@ def fetch_data(
     try:
 
         map_resp = request_session.get(url=url_endpoint, params=safe_param)
-
+        if map_resp.status_code == 414:
+            raise exceptions.HTTPError(f"414 Request-URI Too Large\n{map_resp.url}")
     except exceptions.ConnectionError as connection_error:
         logger.error(
             msg="There is something wrong with the connection.\n%s" % connection_error
@@ -266,6 +267,9 @@ def fetch_data(
     except exceptions.Timeout as timeout:
         logger.error(msg="Timeout \n%s" % timeout)
 
+    except exceptions.HTTPError as e:
+        logger.error(msg="error %s" % e)
+        return 414, "error"
     else:
         logger.debug(msg="response => %s" % map_resp.status_code)
         raw_response = map_resp.text
