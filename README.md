@@ -1,6 +1,6 @@
 # Introduction
 
-[//]: # (![bumpver]&#40;https://img.shields.io/badge/unitest-code?style=for-the-badge&logo=python&logoColor=gray&color=ffffff&#41; )
+
 ![python](https://img.shields.io/badge/Python-3.10-blue?style=for-the-badge&logo=python&logoColor=blue&color=ffffff&labelColor=purple)
 ![Coin Market Cap](https://img.shields.io/badge/coinmarketcap-Code?style=for-the-badge&logo=coinmarketcap&logoColor=gray&color=ffffff)
 
@@ -28,7 +28,7 @@ The most relevant difference is the addition of a list of keys available in each
 ```
 
 ----------------------------------------
-## :ledger: Index
+## Index
 
 - [About](#beginner-about)
   - [Why Use the Client](#Why use the Client:)
@@ -43,7 +43,7 @@ The most relevant difference is the addition of a list of keys available in each
 - [Resources](#page_facing_up-resources)
 - [License](#lock-license)
 ----------------------------------------
-##  :beginner: About
+##  About
 The CoinMarketCap API is an API provided by the company with the same name. This API provides cryptocurrency data such as price, volume, market cap, and exchange data.
 
 This project is a wrapper around this API that facilitates its usage for python projects.
@@ -54,7 +54,7 @@ This project is a wrapper around this API that facilitates its usage for python 
 2. It provides the option to save the response data to save in credit calls for data that is not updated constantly.
 3. It provides metadata information in the response. This metadata contains the "cost" per request in credits and a list of the keys in the data part of the response so users can retrieve information with ease.
 
-## :zap: Usage
+## Usage
 1. Decided with URL you will use:
    1. `BASE`:base is the real API and provide the real 
    data. `cmc_helper.Urls.BASE.value`
@@ -106,15 +106,15 @@ The response will be similar to:
 }
 ```
 
-##  :wrench: Development
+##  Development
 Still working in this part but any contribution or suggestion is more than welcome
 
-### :notebook: Pre-Requisites
+### Pre-Requisites
 - python=>3.10
 - request
 
 
-###  :file_folder: File Structure
+### File Structure
 This is the structure of this repository not of a project using this python-client.
 
 ```
@@ -139,29 +139,29 @@ This is the structure of this repository not of a project using this python-clie
 └── README.md
 ```
 
-## :cherry_blossom: Community
+## Community
 
 As mentioned before the contribution guidelines are not done yet, but any report or suggestion will be appreciated 
 
- ###  :fire: Contribution
+### Contribution
 
  Your contributions are always welcome and appreciated. Following are the things you can do to contribute to this project.
 
- 1. **Report a bug** <br>
+* **Report a bug** <br>
  If you think you have encountered a bug, and I should know about it, feel free to report it 
 [here](https://github.com/CubeVic/coinmarketcapAPI/issues), and I will take care of it.
 
 
- ### :cactus: Branches
+ ### Branches
 
 1. **`master`** is the main development branch.
 
 2. **`main`** is the production branch.
 3. **`Development`** is the experimental development branch.
 
-##  :page_facing_up: Resources
+## Resources
 If you want more information about the Coin market cap API you can visit their side [coinmarketcapAPI](https://coinmarketcap.com/api/documentation/v1/)
 
 
-##  :lock: License
+## License
 [MIT license](https://github.com/CubeVic/coinmarketcapAPI/blob/main/LICENSE)
