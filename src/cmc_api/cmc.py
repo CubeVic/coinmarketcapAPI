@@ -101,22 +101,22 @@ class Cmc(Wrapper):
 
         Args:
                 listing_status (str): default = "active". Only active cryptocurrencies are returned by default.
-                        Pass inactive to get a list of cryptocurrencies that are no longer active. Pass untracked to get a list
-                        of cryptocurrencies that are listed but do not yet meet methodology requirements to have tracked markets
-                        available. You may pass one or more comma-separated values.
-                sort (str): default = "cmc_rank", options "cmc_rank", "id". What field to sort the list of cryptocurrencies
-                        by.
+                        Pass inactive to get a list of cryptocurrencies that are no longer active. Pass untracked to get
+                        a list of cryptocurrencies that are listed but do not yet meet methodology requirements to have
+                        tracked markets available. You may pass one or more comma-separated values.
+                sort (str): default = "cmc_rank", options "cmc_rank", "id". What field to sort the list of
+                    cryptocurrencies by.
                 **kwargs:
-                        -> start (int, optional): >= 1 Optionally offset the start ( 1-based index) of the paginated list of
-                                items to return.
-                        -> limit (int, optional): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this
-                                parameter and the "start" parameter to determine your own pagination size.
+                        -> start (int, optional): >= 1 Optionally offset the start ( 1-based index) of the paginated
+                            list of items to return.
+                        -> limit (int, optional): [ 1 .. 5000 ] Optionally specify the number of results to return. Use
+                            this parameter and the "start" parameter to determine your own pagination size.
                         -> symbol (str): Optionally pass a comma-separated list of cryptocurrency symbols to return
                                 CoinMarketCap IDs for. If this option is passed, other options will be ignored.
-                        -> aux (str, optional): default = "platform,first_historical_data,last_historical_data,is_active"
+                        -> aux (str, optional):default = "platform,first_historical_data,last_historical_data,is_active"
                                 Optionally specify a comma-separated list of supplemental data fields to return.
-                                Pass platform,first_historical_data,last_historical_data,is_active,status to include all auxiliary
-                                fields.
+                                Pass platform,first_historical_data,last_historical_data,is_active,status to include
+                                all auxiliary fields.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -147,12 +147,14 @@ class Cmc(Wrapper):
                         -> slug (str) Alternatively pass a comma-separated list of cryptocurrency slugs.
                                 Example: "bitcoin,ethereum".
                         -> symbol (str): Alternatively pass one or more comma-separated cryptocurrency symbols.
-                                Example: "BTC,ETH". At least one "id" or "slug" or "symbol" is required for this request.
+                                Example: "BTC,ETH". At least one "id" or "slug" or "symbol" is required for this
+                                request.
                         -> address (str): Alternatively pass in a contract address.
                                 Example: "0xc40af1e4fecfa05ce6bab79dcd8b373d2e436c4e"
-                        -> aux (str): default = "urls,logo,description,tags,platform,date_added,notice". Optionally specify a
-                                comma-separated list of supplemental data fields to return.
-                                Pass urls,logo,description,tags,platform,date_added,notice,status to include all auxiliary fields.
+                        -> aux (str): default = "urls,logo,description,tags,platform,date_added,notice". Optionally
+                                specify a comma-separated list of supplemental data fields to return.
+                                Pass urls,logo,description,tags,platform,date_added,notice,status to include all
+                                auxiliary fields.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -175,52 +177,53 @@ class Cmc(Wrapper):
 
         Args:
                 start (int): >= 1. Optionally offset the start (1-based index) of the paginated list of items to return.
-                limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and the
-                        "start" parameter to determine your own pagination size.
+                limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and
+                    the "start" parameter to determine your own pagination size.
                 **kwargs:
-                        -> price_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum USD price to
-                                filter results by.
-                        -> price_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum USD price to
-                                filter results by.
-                        -> market_cap_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum market
-                                cap to filter results by.
-                        -> market_cap_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum market
-                                cap to filter results by.
-                        -> volume_24h_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum 24 hour
-                                USD volume to filter results by.
-                        -> volume_24h_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum 24 hour
-                                USD volume to filter results by.
-                        -> circulating_supply_min (int): [ 0 .. 100000000000000000 ]Optionally specify a threshold of minimum
-                                circulating supply to filter results by.
-                        -> circulating_supply_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum
-                                circulating supply to filter results by.
-                        -> percent_change_24h_min (int): >= -100 Optionally specify a threshold of minimum 24 hour percent
-                                change to filter results by.
-                        -> percent_change_24h_max (int): >= -100 Optionally specify a threshold of maximum 24 hour percent
-                                change to filter results by.
-                        -> convert (str): Optionally calculate market quotes in up to 120 currencies at once by passing a
-                                comma-separated list of cryptocurrency or fiat currency symbols. Each additional convert option
-                                beyond the first requires an additional call credit. A list of supported fiat options can be found
-                                here. Each conversion is returned in its own "quote" object.
-                        -> convert_id (str): Optionally calculate market quotes by CoinMarketCap ID instead of symbol. This
-                                option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
-                                convert=BTC,USD in your query. This parameter cannot be used when convert is used.
-                        -> sort	(str): default = "market_cap". options = "name""symbol""date_added""market_cap"
-                                "market_cap_strict""price""circulating_supply""total_supply""max_supply""num_market_pairs"
-                                "volume_24h""percent_change_1h""percent_change_24h""percent_change_7d"
-                                "market_cap_by_total_supply_strict""volume_7d""volume_30d" What field to sort the list of
-                                cryptocurrencies by.
-                        -> sort_dir (str): options = "asc", "desc" The direction in which to order cryptocurrencies against the
-                                specified sort.
-                        -> cryptocurrency_type (str): default = "all". options = "all""coins""tokens".The type of cryptocurrency
-                                to include.
-                        -> tag (str): default = "all",options = "all","defi","filesharing".The tag of cryptocurrency to include.
-                        -> aux (str): default = "num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,
-                                circulating_supply,total_supply". Optionally specify a comma-separated list of supplemental data
-                                fields to return. Pass num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,
-                                circulating_supply,total_supply,market_cap_by_total_supply,volume_24h_reported,volume_7d,
-                                volume_7d_reported,volume_30d,volume_30d_reported,is_market_cap_included_in_calc to include all
-                                auxiliary fields.
+                    -> price_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum USD
+                            price to filter results by.
+                    -> price_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum USD
+                            price to filter results by.
+                    -> market_cap_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum
+                            market cap to filter results by.
+                    -> market_cap_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum
+                            market cap to filter results by.
+                    -> volume_24h_min (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of minimum
+                            24 hour USD volume to filter results by.
+                    -> volume_24h_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of maximum
+                            24 hour USD volume to filter results by.
+                    -> circulating_supply_min (int): [ 0 .. 100000000000000000 ]Optionally specify a threshold of
+                            minimum circulating supply to filter results by.
+                    -> circulating_supply_max (int): [ 0 .. 100000000000000000 ] Optionally specify a threshold of
+                            maximum circulating supply to filter results by.
+                    -> percent_change_24h_min (int): >= -100 Optionally specify a threshold of minimum 24 hour
+                            percent change to filter results by.
+                    -> percent_change_24h_max (int): >= -100 Optionally specify a threshold of maximum 24 hour
+                            percent change to filter results by.
+                    -> convert (str): Optionally calculate market quotes in up to 120 currencies at once by passing
+                            a comma-separated list of cryptocurrency or fiat currency symbols. Each additional
+                            convert option beyond the first requires an additional call credit. A list of supported fiat
+                            options can be found here. Each conversion is returned in its own "quote" object.
+                    -> convert_id (str): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
+                            This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would
+                            replace convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                    -> sort	(str): default = "market_cap". options = "name""symbol""date_added""market_cap"
+                            "market_cap_strict""price""circulating_supply""total_supply""max_supply""num_market_pairs"
+                            "volume_24h""percent_change_1h""percent_change_24h""percent_change_7d"
+                            "market_cap_by_total_supply_strict""volume_7d""volume_30d" What field to sort the list
+                            of cryptocurrencies by.
+                    -> sort_dir (str): options = "asc", "desc" The direction in which to order cryptocurrencies
+                            against the specified sort.
+                    -> cryptocurrency_type (str): default = "all". options = "all""coins""tokens".The type of
+                            cryptocurrency to include.
+                    -> tag (str): default = "all",options = "all","defi","filesharing".The tag of cryptocurrency to
+                            include.
+                    -> aux (str): default = "num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,
+                            circulating_supply,total_supply". Optionally specify a comma-separated list of
+                            supplemental data fields to return. Pass num_market_pairs,cmc_rank,date_added,tags,platform,
+                            max_supply,circulating_supply,total_supply,market_cap_by_total_supply,volume_24h_reported,
+                            volume_7d, volume_7d_reported,volume_30d,volume_30d_reported,is_market_cap_included_in_calc
+                            to include all auxiliary fields.
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                         data: "the data requested"}
@@ -248,15 +251,15 @@ class Cmc(Wrapper):
 
         Args:
                 start (int): >= 1 Optionally offset the start (1-based index) of the paginated list of items to return.
-                limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and the
-                        "start" parameter to determine your own pagination size.
+                limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and
+                    the "start" parameter to determine your own pagination size.
                 **kwargs:
-                        -> id (str): Filtered categories by one or more comma-separated cryptocurrency CoinMarketCap IDs.
-                                Example: 1,2.
-                        -> slug (str): Alternatively filter categories by a comma-separated list of cryptocurrency slugs.
-                                Example: "bitcoin,ethereum".
-                        -> symbol (str): Alternatively filter categories one or more comma-separated cryptocurrency symbols.
-                                Example: "BTC,ETH".
+                        -> id (str): Filtered categories by one or more comma-separated cryptocurrency CoinMarketCap
+                            IDs. Example: 1,2.
+                        -> slug (str): Alternatively filter categories by a comma-separated list of cryptocurrency
+                            slugs. Example: "bitcoin,ethereum".
+                        -> symbol (str): Alternatively filter categories one or more comma-separated cryptocurrency
+                            symbols.Example: "BTC,ETH".
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -282,17 +285,20 @@ class Cmc(Wrapper):
                 cmc_id (str): Then Category ID given by Coin market Cap. on the API is named id.
                 **kwargs (Any): Can be used to pass the other supported parameter in this endpoint.
 
-                                -> start (int, optional): >=1 Optionally offset the start (1-based index) of the paginated list of
-                                        coins to return.
+                                -> start (int, optional): >=1 Optionally offset the start (1-based index) of the
+                                    paginated list of coins to return.
                                 -> limit (int, optional): [1 .. 1000] Optionally specify the number of coins to return.
-                                        Use this parameter and the "start" parameter to determine your own pagination size.
-                                -> convert (str): Optionally calculate market quotes in up to 120 currencies at once by passing a
-                                        comma-separated list of cryptocurrency or fiat currency symbols.
-                                        Each additional convert option beyond the first requires an additional call credit. A list of
-                                        supported fiat options can be found here. Each conversion is returned in its own "quote" object.
-                                -> convert_id (str): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
-                                        This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would
-                                        replace convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                                        Use this parameter and the "start" parameter to determine your own pagination
+                                        size.
+                                -> convert (str): Optionally calculate market quotes in up to 120 currencies at once by
+                                    passing a comma-separated list of cryptocurrency or fiat currency symbols.
+                                    Each additional convert option beyond the first requires an additional call
+                                    credit. A list of supported fiat options can be found here. Each conversion is
+                                    returned in its own "quote" object.
+                                -> convert_id (str): Optionally calculate market quotes by CoinMarketCap ID instead of
+                                    symbol. This option is identical to convert outside of ID format.
+                                    Ex: convert_id=1,2781 would replace convert=BTC,USD in your query. This parameter
+                                    cannot be used when convert is used.
         Returns:
                 (dict): {metadata: {
                                         "timestamp": "",
@@ -323,27 +329,30 @@ class Cmc(Wrapper):
                 cmc_id  (str): on the API is call 'id', One or more comma-separated cryptocurrency CoinMarketCap IDs.
                         Example: 1,2.
                 skip_invalid (bool): Pass true to relax request validation rules. When requesting records on multiple
-                cryptocurrencies an error is returned if no match is found for 1 or more requested cryptocurrencies. If set
-                to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
+                cryptocurrencies an error is returned if no match is found for 1 or more requested cryptocurrencies.
+                If set to true, invalid lookups will be skipped allowing valid cryptocurrencies to still be returned.
                 **kwargs (Any): Can be used to pass other parameters to the endpoint.
 
                         -> slug (str): Alternatively pass a comma-separated list of cryptocurrency slugs.
                                 Example:"bitcoin, ethereum".
                         -> symbol (str): Alternatively pass one or more comma-separated cryptocurrency symbols.
-                                Example: "BTC,ETH". At least one "id" or "slug" or "symbol" is required for this request.
-                        -> convert (str, optional): Optionally calculate market quotes in up to 120 currencies at once by
-                                passing a comma-separated list of cryptocurrency or fiat currency symbols. Each additional convert
-                                option beyond the first requires an additional call credit. A list of supported fiat options can be
-                                found here. Each conversion is returned in its own "quote" object.
-                        -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
-                                This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
-                                convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                                Example: "BTC,ETH". At least one "id" or "slug" or "symbol" is required for this
+                                request.
+                        -> convert (str, optional): Optionally calculate market quotes in up to 120 currencies at once
+                                by passing a comma-separated list of cryptocurrency or fiat currency symbols. Each
+                                additional convert option beyond the first requires an additional call credit. A list of
+                                supported fiat options can be found here. Each conversion is returned in its own "quote"
+                                object.
+                        -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of
+                            symbol.This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would
+                            replace convert=BTC,USD in your query. This parameter cannot be used when convert is used.
                         -> aux (str):
-                                "num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,
-                                is_active,is_fiat" Optionally specify a comma-separated list of supplemental data fields to return.
-                                Pass num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,
-                                market_cap_by_total_supply,volume_24h_reported,volume_7d,volume_7d_reported,volume_30d,
-                                volume_30d_reported,is_active,is_fiat to include all auxiliary fields.
+                                "num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,
+                                total_supply,is_active,is_fiat" Optionally specify a comma-separated list of
+                                supplemental data fields to return.Pass num_market_pairs,cmc_rank,date_added,tags,
+                                platform,max_supply,circulating_supply,total_supply,market_cap_by_total_supply,
+                                volume_24h_reported,volume_7d,volume_7d_reported,volume_30d,volume_30d_reported,
+                                is_active,is_fiat to include all auxiliary fields.
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
                         data: "the data requested"}
@@ -369,13 +378,14 @@ class Cmc(Wrapper):
 
         Args:
                 **kwargs :
-                        -> start (int, optional): default = 1, Optionally offset the start (1-based index) of the paginated list
-                                of items to return.
+                        -> start (int, optional): default = 1, Optionally offset the start (1-based index) of the
+                            paginated list of items to return.
                         -> limit (int, optional): [ 1 .. 5000 ] Optionally specify the number of results to return.
-                                Use this parameter and the "start" parameter to determine your own pagination size.
-                        -> sort (str): sorting default = "id", possible values "id", "name" What field to sort the list by.
-                        -> include_metals (bool): default = false on API, here default = True. Pass true to include precious
-                                metals.
+                            Use this parameter and the "start" parameter to determine your own pagination size.
+                        -> sort (str): sorting default = "id", possible values "id", "name" What field to sort the list
+                            by.
+                        -> include_metals (bool): default = false on API, here default = True. Pass true to include
+                            precious metals.
 
         Return:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -399,22 +409,24 @@ class Cmc(Wrapper):
 
         Args:
                 listing_status	(str): default = "active" Only active exchanges are returned by default. Pass inactive to
-                        get a list of exchanges that are no longer active. Pass untracked to get a list of exchanges that are
-                        registered but do not currently meet methodology requirements to have ac
+                        get a list of exchanges that are no longer active. Pass untracked to get a list of exchanges
+                        that are registered but do not currently meet methodology requirements to have ac
                 **kwargs :
                         -> slug	(str, optional): Optionally pass a comma-separated list of exchange slugs (lowercase URL
-                                friendly shorthand name with spaces replaced with dashes) to return CoinMarketCap IDs for.
-                                If this option is passed, other options will be ignored.
-                        -> start (int, optional): >=1 Optionally offset the start (1-based index) of the paginated list of items
-                                to return.
-                        -> limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this parameter and
-                                the "start" parameter to determine your own pagination size.
-                        -> sort (str): default= "id", can be "volume_24h" or "id". What field to sort the list of exchanges by.
-                        -> aux (str, optional): Optionally specify a comma-separated list of supplemental data fields to return.
-                                Default =  "first_historical_data,last_historical_data,is_active". Pass first_historical_data,
-                                last_historical_data,is_active,status to include all auxiliary fields.
-                        -> crypto_id (str, optional): Optionally include one fiat or cryptocurrency IDs to filter market pairs
-                                by. For example ?crypto_id=1 would only return exchanges that have BTC.
+                                friendly shorthand name with spaces replaced with dashes) to return CoinMarketCap IDs
+                                for.If this option is passed, other options will be ignored.
+                        -> start (int, optional): >=1 Optionally offset the start (1-based index) of the paginated list
+                            of items to return.
+                        -> limit (int): [ 1 .. 5000 ] Optionally specify the number of results to return. Use this
+                            parameter and the "start" parameter to determine your own pagination size.
+                        -> sort (str): default= "id", can be "volume_24h" or "id". What field to sort the list of
+                            exchanges by.
+                        -> aux (str, optional): Optionally specify a comma-separated list of supplemental data fields to
+                            return. Default =  "first_historical_data,last_historical_data,is_active".
+                            pass first_historical_data, last_historical_data,is_active,status to include all auxiliary
+                            fields.
+                        -> crypto_id (str, optional): Optionally include one fiat or cryptocurrency IDs to filter market
+                            pairs by. For example ?crypto_id=1 would only return exchanges that have BTC.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -438,15 +450,15 @@ class Cmc(Wrapper):
         Information include launch date, logo, official website URL, social links, and market fee documentation URL.
 
         Args:
-                cmc_ex_id (str): on the API the parameter is 'id'. One or more comma-separated CoinMarketCap cryptocurrency
-                        exchange ids. Example: "1,2".
+                cmc_ex_id (str): on the API the parameter is 'id'. One or more comma-separated CoinMarketCap
+                    cryptocurrency exchange ids. Example: "1,2".
                 **kwargs:
-                        -> slug (str): Alternatively, one or more comma-separated exchange names in URL friendly shorthand
-                                "slug" format (all lowercase, spaces replaced with hyphens). Example: "binance,gdax". At least one
-                                "id" or "slug" is required.
+                        -> slug (str): Alternatively, one or more comma-separated exchange names in URL friendly
+                            shorthand "slug" format (all lowercase, spaces replaced with hyphens).
+                            Example: "binance,gdax". At least one "id" or "slug" is required.
                         -> aux (str): Optionally specify a comma-separated list of supplemental data fields to return.
-                                Default = "urls,logo,description,date_launched,notice". Pass urls,logo,description,date_launched,
-                                notice,status to include all auxiliary fields.
+                            Default = "urls,logo,description,date_launched,notice". Pass urls,logo,description,
+                            date_launched, notice,status to include all auxiliary fields.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -475,13 +487,14 @@ class Cmc(Wrapper):
 
         Args:
                 **kwargs:
-                        -> convert	(str, optional): Optionally calculate market quotes in up to 120 currencies at once by
-                                passing a comma-separated list of cryptocurrency or fiat currency symbols. Each additional convert
-                                option beyond the first requires an additional call credit. A list of supported fiat options can be
-                                found here. Each conversion is returned in its own "quote" object.
-                        -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
-                                This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
-                                convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                    -> convert	(str, optional): Optionally calculate market quotes in up to 120 currencies at once by
+                            passing a comma-separated list of cryptocurrency or fiat currency symbols. Each additional
+                            convert option beyond the first requires an additional call credit. A list of supported fiat
+                            options can be found here. Each conversion is returned in its own "quote" object.
+                        -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of
+                            symbol. This option is identical to convert outside of ID format. Ex: convert_id=1,2781
+                            would replace convert=BTC,USD in your query. This parameter cannot be used when convert is
+                            used.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
@@ -510,16 +523,16 @@ class Cmc(Wrapper):
                 cmc_id (str): on the API is  'id', The CoinMarketCap currency ID of the base cryptocurrency or fiat to
                         convert from. Example: "1"
                 **kwargs:
-                        -> symbol (str): Alternatively the currency symbol of the base cryptocurrency or fiat to convert from.
-                                Example: "BTC". One "id" or "symbol" is required.
-                        -> time (str, optional): Optional timestamp (Unix or ISO 8601) to reference historical pricing during
-                                conversion. If not passed, the current time will be used. If passed, we'll reference the closest
-                                historic values available for this conversion.
-                        -> convert (str): Pass up to 120 comma-separated fiat or cryptocurrency symbols to convert the source
-                                amount to.
-                        -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of symbol.
-                                This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would replace
-                                convert=BTC,USD in your query. This parameter cannot be used when convert is used.
+                    -> symbol (str): Alternatively the currency symbol of the base cryptocurrency or fiat to convert
+                        from. Example: "BTC". One "id" or "symbol" is required.
+                    -> time (str, optional): Optional timestamp (Unix or ISO 8601) to reference historical pricing
+                        during conversion. If not passed, the current time will be used. If passed, we'll reference the
+                        closest historic values available for this conversion.
+                    -> convert (str): Pass up to 120 comma-separated fiat or cryptocurrency symbols to convert the
+                        source amount to.
+                    -> convert_id (str, optional): Optionally calculate market quotes by CoinMarketCap ID instead of
+                        symbol.This option is identical to convert outside of ID format. Ex: convert_id=1,2781 would
+                        replace convert=BTC,USD in your query. This parameter cannot be used when convert is used.
 
         Returns:
                 (dict): {metadata: {"timestamp": "", "credit_count": "", "error_message": "", "list_keys": ""},
