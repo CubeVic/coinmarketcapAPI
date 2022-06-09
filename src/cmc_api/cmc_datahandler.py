@@ -3,8 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Any
 from collections.abc import Callable
 
-from src.cmc_api.cmc_utils import read_configuration_file
-
 
 class AbstractDataHandler(ABC):
     @staticmethod
