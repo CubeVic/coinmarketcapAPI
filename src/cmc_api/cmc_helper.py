@@ -2,12 +2,15 @@
 Contains Enum with the endpoints URI
 """
 import enum
-import os
 
-cmc_headers = {
-    "Accepts": "application/json",
-    "X-CMC_PRO_API_KEY": os.environ["CMC_API"],
-}
+
+def get_headers(api_key):
+    """Create the headers """
+    cmc_headers = {
+        "Accepts": "application/json",
+        "X-CMC_PRO_API_KEY": api_key,
+    }
+    return cmc_headers
 
 
 class Urls(enum.Enum):

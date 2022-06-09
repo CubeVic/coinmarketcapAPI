@@ -4,9 +4,9 @@
 import enum
 import logging
 from requests import Session
-from src.cmc_api import cmc_utils
-from src.cmc_api.cmc_helper import (
-    cmc_headers,
+from cmc_api import cmc_utils
+from cmc_api.cmc_helper import (
+    get_headers,
     Cryptocurrency,
     Fiat,
     Exchange,
@@ -14,7 +14,7 @@ from src.cmc_api.cmc_helper import (
     Tools,
     Key,
 )
-from src.cmc_api.cmc_datahandler import (
+from cmc_api.cmc_datahandler import (
     AbstractDataHandler,
     HandlerDataDict,
     HandlerDataSingleDict,
@@ -32,11 +32,12 @@ class Wrapper(ABC):
 
     cmc_logger = cmc_utils.fetch_cmc_logger(log_level=logging.INFO)
 
-    def __init__(self, url: str, save_to_json: bool):
+    def __init__(self, url: str, api_key: str, save_to_json: bool):
         self._base_url = url
         self.save_to_json = save_to_json
         self.request_session = Session()
-        self.request_session.headers.update(cmc_headers)
+        headers = get_headers(api_key)
+        self.request_session.headers.update(headers)
         self.data_handler = AbstractDataHandler
         cmc_utils.create_config_file()
         self._update_config_file()
@@ -91,8 +92,8 @@ class Wrapper(ABC):
 
 
 class Cmc(Wrapper):
-    def __init__(self, url: str, save_to_json: bool = False):
-        super().__init__(url, save_to_json)
+    def __init__(self, url: str, api_key: str, save_to_json: bool = False):
+        super().__init__(url, api_key, save_to_json)
 
     def get_cmc_id_map(
         self, sort: str = "cmc_rank", listing_status: str = "active", **kwargs

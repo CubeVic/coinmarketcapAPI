@@ -71,7 +71,7 @@ This project is a wrapper around this API that facilitates its usage for python 
 from cmc_api import cmc, cmc_helper
 
 base_url = cmc_helper.Urls.BASE.value
-cmc = cmc.Cmc(url=base_url)
+cmc = cmc.Cmc(url=base_url, api_key="YOU_LICENSE_KEY", save_to_json=True)
 cmc.get_cmc_id_map(listing_status="active", start=1, limit=1000)
 ```
 The response will be similar to:
@@ -163,7 +163,7 @@ This is the structure of this repository not of a project using this python-clie
 
 ## :cherry_blossom: Community
 
-As metioned before the contribution guidelines are not done yet, but any report or suggestion will be appreciated 
+As mentioned before the contribution guidelines are not done yet, but any report or suggestion will be appreciated 
 
  ###  :fire: Contribution
 
