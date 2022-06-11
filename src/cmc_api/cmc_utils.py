@@ -195,17 +195,14 @@ def save_dict_value_to_configuration_file(dict_value):
         config.write(configfile)
 
 
-# ftm: off
 def _check_args(exp_args: Any, given_args: dict) -> dict:
     logger.debug(
-        "Validating args:\n expected %s vs given %s " % exp_args, list(given_args.keys())
+        "Validating args:\n expected %s vs given %s " % exp_args,
+        list(given_args.keys()),
     )
     params = {k: v for (k, v) in given_args.items() if v and k in exp_args}
     logger.debug("params to be used: %s" % params)
     return params
-
-
-# ftm: on
 
 
 class DataHandler(Protocol):
