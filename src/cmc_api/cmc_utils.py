@@ -195,22 +195,30 @@ def save_dict_value_to_configuration_file(dict_value):
         config.write(configfile)
 
 
+# ftm: off
 def _check_args(exp_args: Any, given_args: dict) -> dict:
     logger.debug(
-        f"Validating args:\nexpected {exp_args} vs given {list(given_args.keys())}"
+        "Validating args:\n expected %s vs given %s " % exp_args, list(given_args.keys())
     )
     params = {k: v for (k, v) in given_args.items() if v and k in exp_args}
-    logger.debug(f"params to be used: {params}")
+    logger.debug("params to be used: %s" % params)
     return params
 
 
+# ftm: on
+
+
 class DataHandler(Protocol):
+    """Datahandle prtocol"""
+
     @staticmethod
     def data_extraction(payload: dict) -> (dict, Any):
+        """data_extraction protocol"""
         ...
 
     @staticmethod
     def response_builder(raw_resp: str, ext_method: Callable[[dict], Any]) -> dict:
+        """response_builder protocol"""
         ...
 
 
@@ -261,15 +269,16 @@ def fetch_data(
             raise exceptions.HTTPError(f"414 Request-URI Too Large\n{map_resp.url}")
     except exceptions.ConnectionError as connection_error:
         logger.error(
-            msg="There is something wrong with the connection.\n%s" % connection_error
+            msg="There is something wrong with the connection.\n %s" % connection_error
         )
-
+        return 400, {"message": "Connection error"}
     except exceptions.Timeout as timeout:
         logger.error(msg="Timeout \n%s" % timeout)
+        return 400, {"message": "Timeout"}
 
-    except exceptions.HTTPError as e:
-        logger.error(msg="error %s" % e)
-        return 414, "error"
+    except exceptions.HTTPError as error:
+        logger.error(msg="error %s" % error)
+        return 414, {"message": "error"}
     else:
         logger.debug(msg="response => %s" % map_resp.status_code)
         raw_response = map_resp.text
@@ -281,6 +290,7 @@ def fetch_data(
 
 
 def update_configuration_file(value_to_add: dict) -> None:
+    """Updating the Configuration file"""
     values = {
         "current_day_used": value_to_add["data"]["usage"]["current_day"][
             "credits_used"
