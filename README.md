@@ -30,7 +30,7 @@ The most relevant difference is the addition of a list of keys available in each
 ## Index
 
 - [About](#beginner-about)
-  - [Why Use the Client](#Why use the Client:)
+  - [Why Use the Client](#Why-use-the-Client)
 - [Usage](#zap-usage)
 - [Deployment](#rocket-deployment)  
   - [Pre-Requisites](#Pre-Requisites)
