@@ -29,18 +29,17 @@ The most relevant difference is the addition of a list of keys available in each
 ----------------------------------------
 ## Index
 
-- [About](#beginner-about)
-  - [Why Use the Client](#Why-use-the-Client)
-- [Usage](#zap-usage)
-- [Deployment](#rocket-deployment)  
-  - [Pre-Requisites](#Pre-Requisites)
-  - [File Structure](#File-Structure)
-- [Community](#cherry_blossom-community)
-  - [Contribution](#fire-contribution)
-  - [Branches](#cactus-branches)
-  - [Guideline](#exclamation-guideline)  
-- [Resources](#page_facing_up-resources)
-- [License](#lock-license)
+- [About](https://github.com/CubeVic/coinmarketcapAPI#about)
+  - [Why Use the Client](https://github.com/CubeVic/coinmarketcapAPI#why-use-the-client)
+- [Usage](https://github.com/CubeVic/coinmarketcapAPI#usage)
+- [Deployment](https://github.com/CubeVic/coinmarketcapAPI#development)  
+  - [Pre-Requisites](https://github.com/CubeVic/coinmarketcapAPI#pre-requisites)
+  - [File Structure](https://github.com/CubeVic/coinmarketcapAPI#file-structure)
+- [Community](https://github.com/CubeVic/coinmarketcapAPI#community)
+  - [Contribution](https://github.com/CubeVic/coinmarketcapAPI#contribution)
+  - [Branches](https://github.com/CubeVic/coinmarketcapAPI#branches)
+- [Resources](https://github.com/CubeVic/coinmarketcapAPI#resources)
+- [License](https://github.com/CubeVic/coinmarketcapAPI#license)
 ----------------------------------------
 ##  About
 The CoinMarketCap API is an API provided by the company with the same name. This API provides cryptocurrency data such as price, volume, market cap, and exchange data.
